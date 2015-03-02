@@ -1,0 +1,134 @@
+package tp.pr5.console;
+
+import java.util.List;
+
+import tp.pr5.Direction;
+import tp.pr5.NavigationObserver;
+import tp.pr5.PlaceInfo;
+import tp.pr5.RobotEngineObserver;
+import tp.pr5.items.InventoryObserver;
+import tp.pr5.items.Item;
+
+public class Console extends java.lang.Object implements NavigationObserver, RobotEngineObserver, InventoryObserver {
+	String LINE_SEPARATOR = System.getProperty("line.separator");
+	
+	@Override
+	public void raiseError(String msg) {
+		// TODO Auto-generated method stub
+		System.out.println(msg);
+	}
+
+	@Override
+	public void communicationHelp(String help) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	////////////////////////////////////////////////////////////
+	//Muestra los mensajes de cuando el robot se queda sin fuel o cuando llega a spaceship
+	///////////////////////////////////////////////////////////
+	/**
+	 * 
+	 */
+	
+	@Override
+	public void engineOff(boolean atShip) {
+		// TODO Auto-generated method stub
+		if (atShip){
+			System.out.println ( "WALLÂ·E says: I am at my spaceship. Bye bye");
+		}
+		else{
+			System.out.println ("WALLÂ·E says: I run out of fuel. I cannot move. Shutting down...");
+		}
+	}
+
+	@Override
+	public void communicationCompleted() {
+		// TODO Auto-generated method stub
+		System.out.println ("WALLA·E says: Bye Bye");
+	}
+
+	@Override
+	public void robotUpdate(int fuel, int recycledMaterial) {
+		// TODO Auto-generated method stub
+		System.out.println ("      * My power is " + fuel);
+		System.out.println ("      * My recycled material is " + recycledMaterial);
+	}
+
+	@Override
+	public void robotSays(String message) {
+		// TODO Auto-generated method stub
+		System.out.print(message);
+		
+	}
+
+	@Override
+	public void headingChanged(Direction newHeading) {
+		// TODO Auto-generated method stub
+		System.out.println ("WALL·E is looking at direction " + newHeading);
+	}
+
+	@Override
+	public void initNavigationModule(PlaceInfo initialPlace, Direction heading) {
+		// TODO Auto-generated method stub
+		this.placeScanned(initialPlace);
+		this.headingChanged(heading);
+	}
+
+	@Override
+	public void robotArrivesAtPlace(Direction heading, PlaceInfo place) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void placeScanned(PlaceInfo placeDescription) {
+		// TODO Auto-generated method stub
+		//System.out.println( placeDescription.getName());
+		//System.out.println( placeDescription.getDescription());
+		System.out.println( placeDescription.toString());
+	}
+
+	@Override
+	public void placeHasChanged(PlaceInfo placeDescription) {
+		// TODO Auto-generated method stub
+		//this.placeScanned(placeDescription);
+	}
+
+	@Override
+	public void inventoryChange(List<Item> inventory) {
+		// TODO Auto-generated method stub
+	/*	String st = "   ";
+		String espacios = "   ";
+		int i = 0;
+		
+		for ( Item aux : inventory){
+			st = st + aux.getId();
+			if(i != inventory.size()-1){
+				st = st + LINE_SEPARATOR + espacios;
+			}
+			i++;
+		}
+		System.out.println (st);*/
+		
+	}
+
+	@Override
+	public void inventoryScanned(String inventoryDescription) {
+		// TODO Auto-generated method stub
+		System.out.println (inventoryDescription);
+		
+	}
+
+	@Override
+	public void itemScanned(String description) {
+		// TODO Auto-generated method stub
+		System.out.println(description);
+	}
+
+	@Override
+	public void itemEmpty(String itemName) {
+		// TODO Auto-generated method stub
+		//System.out.println(itemName);
+	}
+}

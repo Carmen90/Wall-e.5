@@ -1,0 +1,72 @@
+package tp.pr5.instructions;
+
+import tp.pr5.NavigationModule;
+import tp.pr5.RobotEngine;
+import tp.pr5.Rotation;
+import tp.pr5.instructions.exceptions.InstructionExecutionException;
+import tp.pr5.instructions.exceptions.WrongInstructionFormatException;
+import tp.pr5.items.ItemContainer;
+
+/**
+ * @author Carmen Acosta Morales y Nerea Ramirez Lamela
+ * Esta clase se encarga de hacer girar al robot.
+ * Configura el contexto segun la informacion de un modulo de navegaci�n dado.
+ * Parsea una cadena para saber si esta hace referencia a una instrucci�n de tipo Radar, sino lanza una excepci�n del tipo
+ * WrongInstructionFormatException. Si la cadena es correcta ( "Radar" ) devuelve una RadarInstruction. 
+ * Si alguno de los atributos es nulo y se intenta acceder a �l salta una excepcion del tipo NullPointerException. 
+ * Tiene cuatro atributos, navega, que contiene la informacion del entorno del robot, robot, que contiene el estado del robot,
+ * container que contiene los Items que contiene el robot en su invenatrio e id, que es la id del item a operar.
+ * El m�todo getHelp te indica los par�metros que se aceptan como validos para esta instrucci�n.
+ *
+ */
+public class TurnInstruction implements Instruction{
+	private NavigationModule navega;
+	private RobotEngine robot;
+	private Rotation rota;
+	
+	public TurnInstruction (){
+		this.navega = new NavigationModule();
+		this.rota = Rotation.UNKNOWN;
+	}
+
+	@Override
+	public Instruction parse(String cad) throws WrongInstructionFormatException {
+		// TODO Auto-generated method stub
+		String [] cadena = cad.split(" ");
+		if ( cadena.length != 2){
+			throw new WrongInstructionFormatException ();
+		}else if ( !cadena[0].equalsIgnoreCase("TURN") && !cadena[0].equalsIgnoreCase("GIRAR")){
+			throw new WrongInstructionFormatException ();
+		}
+		else if( !cadena[1].equalsIgnoreCase("LEFT") && !cadena[1].equalsIgnoreCase("RIGHT") ){
+			throw new WrongInstructionFormatException ();
+		}
+		else{
+			this.rota = Rotation.valueOf(cadena[1].toUpperCase());
+			return this;
+		}
+	}
+
+	@Override
+	public String getHelp() {
+		// TODO Auto-generated method stub
+		return " TURN|GIRAR<LEFT|RIGHT>";
+	}
+
+	@Override
+	public void configureContext(RobotEngine engine,
+			NavigationModule navigation, ItemContainer robotContainer) {
+		// TODO Auto-generated method stub
+		this.navega = navigation;
+		this.robot = engine;
+	}
+
+	@Override
+	public void execute() throws InstructionExecutionException {
+		// TODO Auto-generated method stub
+		this.navega.initHeading(this.navega.getCurrentHeading().rotate(rota));
+		this.robot.addFuel(-5);
+		
+	}
+
+}

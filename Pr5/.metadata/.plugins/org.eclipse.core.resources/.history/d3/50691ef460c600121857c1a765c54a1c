@@ -1,0 +1,47 @@
+package tp.pr5.instructions;
+/**
+ * Esta interfaz representa una instrucción que soporta la aplicación.Toda instrucción del robot debe implementar todos los métodos de esta interfaz.
+ * El método parse intenta analizar un string con la información de la instrucción de la clase que representa.
+ * Help es un método que devuelve un string con la sintáxis de la instrucción que la clase soporta.
+ * El método ConfigureContext establece el marco necesario para ejecutar la instrucción.
+ * Por último el método Esecute realiza el trabajo que hace cada instrucción.No tiene ningún parámetro este método, por lo que antes de hacer la ejecución de la instrucción se debe llamar
+ * a configureContext para darle al objeto de instrucciones.
+ */
+import tp.pr5.NavigationModule;
+import tp.pr5.RobotEngine;
+import tp.pr5.instructions.exceptions.InstructionExecutionException;
+import tp.pr5.instructions.exceptions.WrongInstructionFormatException;
+import tp.pr5.items.ItemContainer;
+
+public interface Instruction {
+	/**
+	 * 
+	 * Analiza la cadena y devuelve una instancia de HelpInstruction. Si no es correcta lanza una excepción.	 
+	 * @param cad - Cadena de texto
+	 * @return
+	 * @throws WrongInstructionFormatException-  Cuando la cadena cad no se ajusta a la sintaxis de instrucciones.
+	 */
+	Instruction parse(java.lang.String cad)
+            throws WrongInstructionFormatException;
+	/**
+	 * Devuelve la sintaxis de la instrucción.
+	 * @return
+	 */
+	java.lang.String getHelp();
+	/**
+	 * Establece el contexto de ejecución.
+	 * Modifica la configuración del contexto.El método recibe el robot engine, navigation (la información sobre el juego, los lugares y la direccion actual y el contenedor del robot.
+	 * @param engine
+	 * @param navigation
+	 * @param robotContainer
+	 */
+	void configureContext(RobotEngine engine,
+            NavigationModule navigation,
+            ItemContainer robotContainer);
+	/**
+	 * Ejecuta la instrucción que debe implementarse en cada subclase no abstracta.
+	 * @throws InstructionExecutionException
+	 */
+	void execute()
+            throws InstructionExecutionException;
+}

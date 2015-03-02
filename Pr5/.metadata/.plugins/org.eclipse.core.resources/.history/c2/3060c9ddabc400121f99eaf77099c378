@@ -1,0 +1,65 @@
+package tp.pr5.instructions;
+
+import tp.pr5.NavigationModule;
+import tp.pr5.RobotEngine;
+import tp.pr5.instructions.exceptions.InstructionExecutionException;
+import tp.pr5.instructions.exceptions.WrongInstructionFormatException;
+import tp.pr5.items.ItemContainer;
+/**
+ * @author Carmen Acosta Morales y Nerea Ramirez Lamela
+ * Esta clase se encarga del desplazamiento del robot. Configura el contexto del robot asi como de su panel de navegacion
+ * Parsea una cadena para saber si esta hace referencia a una instrucción de tipo move, sino lanza una excepción del tipo
+ * WrongInstructionFormatException. Si la cadena es correcta ( "move" o "mover") devuelve una MoveInstruction. Si alguno de los atributos
+ * es nulo y se intenta acceder a él salta una excepcion del tipo NullPointerException. Tiene dos atributos, navega, que contiene la 
+ * informacion del entorno del robot y robot, que contiene el estado del robot. El método getHelp te indica los parámetros que 
+ * se aceptan como validos para esta instrucción.
+ *
+ */
+public class MoveInstruction implements Instruction{
+	private NavigationModule navega;
+	private RobotEngine robot;
+
+	public MoveInstruction (){
+		this.navega = new NavigationModule();
+		this.robot = new RobotEngine();
+	}
+	
+	@Override
+	public Instruction parse(String cad) 
+			throws WrongInstructionFormatException {
+		// TODO Auto-generated method stub
+		
+		String [] cadena = cad.split(" ");/*Divide la cadena en espacios
+		y guarda cada fragmento en cada posición del array*/
+		if ( !cadena [0].equalsIgnoreCase("MOVE") && !cadena [0].equalsIgnoreCase("MOVER") || cadena.length > 1){
+			throw new WrongInstructionFormatException();
+		}else {
+			return this;
+		}
+	}
+
+	@Override
+	public String getHelp() {
+		// TODO Auto-generated method stub
+		return "MOVE|MOVER";
+	}
+
+	@Override
+	public void configureContext(RobotEngine engine,
+			NavigationModule navigation, ItemContainer robotContainer) {
+		// TODO Auto-generated method stub
+		this.navega = navigation;
+		this.robot = engine;
+	}
+
+	@Override
+	public void execute() throws InstructionExecutionException {
+		// TODO Auto-generated method stub
+		this.navega.move();
+		this.robot.saySomething(" WALL·E says: Moving in direction " + this.navega.getCurrentHeading());
+		this.robot.addFuel(-5);
+		
+		
+	}
+
+}

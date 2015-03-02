@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Encapsulate field &apos;tp.pr5.gui.PlaceCell.place&apos; in &apos;tp.pr5.gui.PlaceCell&apos;&#x0D;&#x0A;- Original project: &apos;Pr5&apos;&#x0D;&#x0A;- Original element: &apos;tp.pr5.gui.PlaceCell.place&apos;&#x0D;&#x0A;- Getter method name: &apos;getPlace&apos;&#x0D;&#x0A;- Setter method name: &apos;setPlace&apos;&#x0D;&#x0A;- Field visibility: &apos;public&apos;&#x0D;&#x0A;- Use getter and setter methods in declaring type" comments="false" declaring="true" description="Encapsulate field &apos;place&apos;" flags="589830" getter="getPlace" id="org.eclipse.jdt.ui.self.encapsulate" input="/src&lt;tp.pr5.gui{PlaceCell.java[PlaceCell^place" insertion="6" setter="setPlace" stamp="1369413392454" version="1.0" visibility="1"/>
+</session>

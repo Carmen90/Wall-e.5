@@ -1,0 +1,92 @@
+package tp.pr5;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+import tp.pr5.instructions.exceptions.WrongInstructionFormatException;
+import tp.pr5.instructions.MoveInstruction;
+import tp.pr5.instructions.TurnInstruction;
+import tp.pr5.instructions.QuitInstruction;
+import tp.pr5.instructions.RadarInstruction;
+import tp.pr5.instructions.HelpInstruction;
+import tp.pr5.instructions.PickInstruction;
+import tp.pr5.instructions.DropInstruction;
+import tp.pr5.instructions.ScanInstruction;
+import tp.pr5.instructions.OperateInstruction;
+import tp.pr5.instructions.Instruction;
+/**
+ * Interpreter covierte las entradas del usuario en instrucciones para el robot.Las instrucciones válidas son:
+ 	MOVE | MOVER
+	TURN | GIRAR { LEFT | RIGHT }
+	PICK | COGER <ITEM>
+	DROP | SOLTAR <ITEM>
+	SCAN | ESCANEAR [ <ITEM> ]
+	RADAR
+	OPERATE | OPERAR <ITEM>
+	HELP | AYUDA
+	QUIT | SALIR
+ * Tambi�n devuelve informaci�n sobre todas  las instrucciones que el robot entiende si se invoca al m�todo interpreterHelp().
+ * Cada instrucci�n que se agregue se guardrar� en una lista de instrucciones(miLista) que tiene insterpreter.
+ * @author Carmen Acosta Morales y Nerea Ramirez Lamela 
+ */
+public class Interpreter {
+	private static List <Instruction> miLista;
+	static String LINE_SEPARATOR = System.getProperty("line.separator");
+	
+	/**
+	 * 
+	 * @param line
+	 * @return
+	 * @throws WrongInstructionFormatException
+	 */
+	
+	public static Instruction generateInstruction(java.lang.String line)
+	
+            throws WrongInstructionFormatException{
+		Instruction inst = null;
+		 boolean encontrado = false;
+		 Interpreter.miLista = anadirInst();
+		 Iterator <Instruction> e = miLista.iterator();
+		 while(e.hasNext() && !encontrado){
+				try {
+					inst = e.next().parse(line);
+					encontrado = true;
+				} catch (WrongInstructionFormatException e1) {
+					// TODO Auto-generated catch block
+					//e1.printStackTrace();
+				}
+		 }
+		 if ( !encontrado){
+			 throw new WrongInstructionFormatException();
+		 }
+		 
+		 return inst;
+		
+	}
+	
+	/**
+	 * Método que te devuelve todas las instrucciones que son validas a la hora de ejecutar el robot
+	 * @return
+	 */
+	public static java.lang.String interpreterHelp(){
+		String ayuda=" ";
+		for (int i=0; i<9 ;i++){
+			ayuda=ayuda + miLista.get(i).getHelp() + LINE_SEPARATOR+ " ";
+		}
+		return ayuda;
+		
+	}
+		
+	/**
+	 * Método que inserta en la lista de instrucciones de la clase todas las instrucciones que puede realizar el robot
+	 * @return
+	 */
+	public static List<Instruction> anadirInst(){
+			
+			List<Instruction> miLista = Arrays.asList(new DropInstruction(), new HelpInstruction(), 
+					new OperateInstruction(), new PickInstruction(),new QuitInstruction(), new RadarInstruction(),
+					new ScanInstruction(),new TurnInstruction(), new MoveInstruction());
+			return miLista;
+			
+		}
+}

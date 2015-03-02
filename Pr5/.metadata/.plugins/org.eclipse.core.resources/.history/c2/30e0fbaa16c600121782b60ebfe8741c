@@ -1,0 +1,158 @@
+package tp.pr5;
+
+import java.util.Iterator;
+
+import tp.pr5.instructions.exceptions.InstructionExecutionException;
+import tp.pr5.items.Item;
+
+/**
+ * Esta clase se encarga de las funciones de navegación del robot.Contiene la ciudad donde el robot busca de
+ * la basura, el lugar actual donde se encuentra el robot, la dirección actual del robot.Contiene los metodos
+ *  para manejar los movimientos del robot y  para coger y soltar los items en el lugar donde se encuentra
+ * @author Nerea Ramírez y Carmen Acosta
+ *
+ */
+public class NavigationModule extends tp.pr5.Observable<NavigationObserver> {
+	private City city;
+	private Direction direction;
+	private Place initialPlace;
+
+	public NavigationModule (){
+		this.city = new City();
+		this.direction = Direction.UNKNOWN;
+		this.initialPlace = new Place();
+	}
+	
+	/**
+	 * Crea un navigationModule con el mapa de la ciudad y un lugarInicial dado
+	 * @param aCity -el mapa de la ciudad
+	 * @param initialPlace - el lugar inicial del robot.
+	 */
+	public NavigationModule(City aCity,
+            Place initialPlace){
+		this.city = aCity;
+		this.initialPlace = initialPlace;
+		this.direction = Direction.NORTH;
+	}
+	
+	/**
+	 * Mira si el robot ha llegado a la nave.
+	 * @return - true si el lugar actual donde se encuentra el robot es la nave.
+	 */
+	public boolean atSpaceship(){
+		return this.initialPlace.isSpaceship();
+		
+	}
+	
+	/**
+	 * Actualiza la dirección actual de acuerdo con el rotación que le pasan por parámetro.
+	 * @param rotation
+	 */
+	public void rotate(Rotation rotation){
+		this.direction = this.direction.rotate(rotation);
+	}
+	
+	/**
+	 * Este método intenta mover al robot en la dirección actual en la que se encuentra.
+	 * Si el movimiento no es posible porque no hay calle en esa dirección o la puerta está cerrada entonces se lanza una excepción.
+	 * Si no es así entonces se actualiza el lugar de acuerdo con el movimiento
+	 * @throws InstructionExecutionException
+	 */
+	public void move()
+	          throws InstructionExecutionException{
+		Street calle = this.getHeadingStreet();
+		
+		if(calle==null){
+			throw new InstructionExecutionException("There's no street");
+		}
+		else{
+			if(calle.isOpen()){
+				this.initialPlace = calle.nextPlace(this.initialPlace);
+			}
+			else{
+				throw new InstructionExecutionException( "The street is closed.");
+			}			
+		}	
+	}
+	
+	/**
+	 * Intenta coger un item del lugar actual donde se encuentra el robot con el id que se pasa por parámetro.
+	 * Si la acción se puede hacer se borra el item del lugar actual.
+	 * Si se borra el item se informa a los NavigationObservers de que el lugar ha cambiado (con ese item de menos)
+	 * @param id
+	 * @return -El item con identificador id si existe en el lugar sino devuelve null
+	 */
+	public Item pickItemFromCurrentPlace(java.lang.String id){
+		Item item = null;
+		if( this.initialPlace.existItem(id)){
+			item = this.initialPlace.pickItem(id);
+			Iterator <NavigationObserver> navOb = this.iterator();
+			while (navOb.hasNext()){
+				navOb.next().placeHasChanged(this.initialPlace);
+			}
+		}
+		return item;
+	}
+	
+	/**
+	 * Suelta un item en el lugar donde se encuentra el robot. 
+	 * Informa a los NavigationObservers de que el lugar ha cambiado (teniendo un nuevo item)
+	 * @param item- el nombre de item que se suelta
+	 */
+	public void dropItemAtCurrentPlace(Item item){
+		if ( !this.initialPlace.existItem(item.getId())){
+			this.initialPlace.addItem(item);
+			Iterator <NavigationObserver> navOb = this.iterator();
+			while (navOb.hasNext()){
+				navOb.next().placeHasChanged(this.initialPlace);
+			}
+		}
+	}
+	
+	/**
+	 * Mira si hay un item con el id dado en el lugar. Lo único que hace es llamar al método existItem():
+	 * @param id
+	 * @return - true si encuentra el item con ese id, sino devuelve false
+	 */
+	public boolean findItemAtCurrentPlace(java.lang.String id){
+		return this.initialPlace.existItem(id);
+		
+	}
+	
+	/**
+	 * Cambia la direccion actual por la dirección dada. Ademas informa a los NavigationObservers de que la dirección ha sido cambiada
+	 * @param heading -Nueva dirección para el robot.
+	 */
+	public void initHeading(Direction heading){
+		this.direction = heading;
+		Iterator <NavigationObserver> navOb = this.iterator();
+		while (navOb.hasNext()){
+			navOb.next().headingChanged(this.direction);
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	/*
+	public void scanCurrentPlace(){
+		this.initialPlace.toString();
+	}*/
+	
+	public Street getHeadingStreet(){
+		return this.city.lookForStreet( this.initialPlace, this.direction);
+		
+	}
+	
+	public Direction getCurrentHeading(){
+		return this.direction;
+		
+	}
+	
+	public Place getCurrentPlace(){
+		return this.initialPlace;
+		
+	}
+	
+	
+}

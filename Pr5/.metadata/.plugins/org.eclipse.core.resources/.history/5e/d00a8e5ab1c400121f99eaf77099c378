@@ -1,0 +1,90 @@
+package tp.pr5.instructions;
+
+import tp.pr5.NavigationModule;
+import tp.pr5.RobotEngine;
+import tp.pr5.instructions.exceptions.InstructionExecutionException;
+import tp.pr5.instructions.exceptions.WrongInstructionFormatException;
+import tp.pr5.items.Item;
+import tp.pr5.items.ItemContainer;
+
+/**
+ * @author Carmen Acosta Morales y Nerea Ramirez Lamela
+ * Esta clase se encarga de coger un item de un lugar y guardarlo en el inventario del robot. 
+ * Configura el contexto del robot actualizando la informacion sobre este y sobre el entorno (NavigationModule)
+ * Parsea una cadena para saber si esta hace referencia a una instrucción de tipo Pick, sino lanza una excepción del tipo
+ * WrongInstructionFormatException. Si la cadena es correcta ( "pick <id>" o "coger <id>") devuelve una PickInstruction. 
+ * Si alguno de los atributos es nulo y se intenta acceder a él salta una excepcion del tipo NullPointerException. 
+ * Tiene tres atributos, navega, que contiene la informacion del entorno del robot, robot,
+ * container que contiene los Items que contiene el robot en su invenatrio e id, que es la id del item a coger.
+ * El método getHelp te indica los parámetros que se aceptan como validos para esta instrucción.
+ *
+ */
+public class PickInstruction implements Instruction{
+	private NavigationModule navega;
+	private RobotEngine robot;
+	private ItemContainer container;
+	private String id;
+
+	public PickInstruction (){
+		this.navega = new NavigationModule ();
+		this.robot = new RobotEngine();
+		this.container = new ItemContainer();
+	}
+	
+	@Override
+	public Instruction parse(String cad) throws WrongInstructionFormatException {
+		// TODO Auto-generated method stub
+		
+		String []cadena = cad.split(" ");
+		if ( cadena.length != 2){
+			throw new WrongInstructionFormatException ();
+		} 
+		else if ( !cadena [0].equalsIgnoreCase("PICK") && !cadena[0].equalsIgnoreCase("COGER")){
+			throw new WrongInstructionFormatException ();
+		}
+		else {
+			this.id = cadena [1];
+			return this;
+		}
+	}
+
+	@Override
+	public String getHelp() {
+		// TODO Auto-generated method stub
+		return "PICK|COGER <id>";
+	}
+
+	@Override
+	public void configureContext(RobotEngine engine,
+			NavigationModule navigation, ItemContainer robotContainer) {
+		// TODO Auto-generated method stub
+		this.robot = engine;
+		this.navega = navigation;
+		this.container = robotContainer;
+	}
+
+	@Override
+	public void execute() throws InstructionExecutionException {
+		// TODO Auto-generated method stub
+		Item item = null;
+		 
+		if (!this.navega.getCurrentPlace().existItem(this.id)){
+			throw new InstructionExecutionException ( "There's no " + this.id + " in this place.");
+		}
+		if ( this.container.containsItem(id)){
+			throw new InstructionExecutionException ("You already have " + this.id);
+		}
+		else{
+			item = this.navega.pickItemFromCurrentPlace(id);
+			if ( item == null){
+				throw new InstructionExecutionException ();
+			}
+			else
+			{
+				this.robot.saySomething(" WALL·E says: I am happy! Now I have " + this.id);
+				this.container.addItem(item);
+			}
+		}
+	}
+
+}

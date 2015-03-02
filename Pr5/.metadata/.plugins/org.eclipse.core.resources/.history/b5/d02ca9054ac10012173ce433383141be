@@ -1,0 +1,78 @@
+package tp.pr5.gui;
+
+import java.util.List;
+
+import javax.swing.JLabel;
+
+import tp.pr5.RobotEngineObserver;
+import tp.pr5.items.InventoryObserver;
+import tp.pr5.items.Item;
+
+@SuppressWarnings("serial")
+public class RobotPanel extends javax.swing.JPanel implements RobotEngineObserver, InventoryObserver{
+	private JLabel jLabelFuel;
+	private JLabel jLabelRecicled;
+	
+	@Override
+	public void raiseError(String msg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void communicationHelp(String help) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void engineOff(boolean atShip) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void communicationCompleted() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void robotUpdate(int fuel, int recycledMaterial) {
+		// TODO Auto-generated method stub
+		this.jLabelFuel.setText ("Fuel: " + fuel);
+		this.jLabelRecicled.setText("Recycled: "+ recycledMaterial );
+	}
+
+	@Override
+	public void robotSays(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void inventoryChange(List<Item> inventory) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void inventoryScanned(String inventoryDescription) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void itemScanned(String description) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void itemEmpty(String itemName) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+}

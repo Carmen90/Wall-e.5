@@ -1,0 +1,88 @@
+ package tp.pr5.console;
+
+import java.util.Scanner;
+
+import tp.pr5.Interpreter;
+import tp.pr5.NavigationModule;
+import tp.pr5.NavigationObserver;
+import tp.pr5.RobotEngine;
+import tp.pr5.RobotEngineObserver;
+import tp.pr5.instructions.Instruction;
+import tp.pr5.instructions.exceptions.WrongInstructionFormatException;
+import tp.pr5.items.InventoryObserver;
+
+/**
+ * 
+ * @author Carmen Acosta Morales y Nerea Ramirez Lamela
+ *
+ */
+public class ConsoleController extends tp.pr5.Controller {
+	private Instruction instruction;
+
+	/**
+	 * Constructora de la clase ConsoleController que tiene como parametro un modelo al cual se inicializa el modelo del que hereda esta clase
+	 * @param game modelo al que se inicializa el robot
+	 */
+	public ConsoleController(RobotEngine game){
+		super(game);
+	}
+
+	/**
+	 * Añade a la lista de vistas del modelo una nueva vista de tipo RobotEngineObserver
+	 * @param consola vista a añadir
+	 */
+	@Override
+	public void registerEngineObserver(RobotEngineObserver consola) {
+		// TODO Auto-generated method stub
+		robot.addEngineObserver(consola);
+	}
+
+	/**
+	 * Añade a la lista de vistas del modelo una nueva vista de tipo InventoryObserver
+	 * @param consola vista a añadir
+	 */
+	@Override
+	public void registerItemContainerObserver(InventoryObserver consola) {
+		// TODO Auto-generated method stub
+		robot.addItemContainerObserver(consola);
+	}
+
+	/**
+	 * Añade a la lista de vistas del modelo una nueva vista de tipo NavigationObserver
+	 * @param consola vista a añadir
+	 */
+	@Override
+	public void registerRobotObserver( NavigationObserver consola) {
+		// TODO Auto-generated method stub
+		robot.addNavigationObserver(consola);
+	}
+
+	/**
+	 * Se encarga del bucle de ejecucuión del juego por consola. Tiene la lectura por consola asi como la llamada al generar instrucción dada 
+	 * una linea introducida por el usuario. Si el usuario introduce unos parametros no válidos por consola el parseo de esta linea soltará 
+	 * una excepción de tipo WrongInstructionFormatException que será capturada para mostrar el correspondiente mensaje de error.
+	 * Cuando la ejecución termina, ya sea por llamar a "QUIT", por haber llegado a la nave o por haberse quedado el robot sin fuel, 
+	 * se sale de la ejecución.
+	 */
+	@Override
+	public void startController() {
+		// TODO Auto-generated method stub
+		@SuppressWarnings("resource")
+		Scanner leer = new Scanner(System.in);
+		String linea;
+		
+		while ( !this.robot.isOver()){
+			robot.saySomething("WALL·E> ");
+			linea = leer.nextLine();
+				
+			try {
+				this.instruction = Interpreter.generateInstruction (linea);
+				this.robot.communicateRobot(instruction);
+			} 
+			catch (WrongInstructionFormatException e) {
+				System.err.println ( "WrongInstructionFormatException");
+			} 
+		}
+		System.exit(0);
+	}
+}

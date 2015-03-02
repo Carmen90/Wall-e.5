@@ -1,0 +1,58 @@
+package tp.pr5.items;
+
+import tp.pr5.NavigationModule;
+import tp.pr5.RobotEngine;
+/**
+ * Un elemento que representa el combustible. Este artículo se puede utilizar por lo menos una vez 
+ * y que proporciona energía de alimentación al robot. Cuando el elemento se utiliza el número configurado de veces,
+ *  entonces debe ser retirado de la inventario robot.
+ * @author Nerea Ramírez y Carmen Acosta
+ *
+ */
+public class Fuel extends Item{
+	private int power;
+	/**
+	 * Constructor de combustible que lo genera con un id, descripción, power,y tiempo.
+	 * @param id
+	 * @param description
+	 * @param power
+	 * @param times
+	 */
+	public Fuel(java.lang.String id, java.lang.String description, int power, int times){
+		super(id, description);
+		this.power = power;
+		this.times = times;
+	}
+	/**
+	 * El combustible puede ser utilizado como tantas veces como se ha configurado.
+	 * @return false Si el tiempo de este es =<0 .
+	 */
+	public boolean canBeUsed(){
+		return this.times > 0;
+		
+	}
+	/**
+	 * Usando el combustible proporciona la energía para el robot 
+	 * (si se puede utilizar) y resta una vez el tiempo 
+	 * que se puede usar el combustible.
+	 */
+	public boolean use(RobotEngine r, NavigationModule nav){
+		boolean usar = false;
+		if ( this.canBeUsed()){
+			r.addFuel(this.power) ;
+			usar = true;
+			this.times--;
+		}
+		return usar;	
+		
+	}
+	/**
+	 * Genera una cadena con la descripción del elemento
+	 */
+	public java.lang.String toString(){
+		return this.id + ": "+ this.description; //+ " // " + "power = "+
+			//this.power + ", times = " + this.times; ;
+		
+	}
+
+}

@@ -1,0 +1,118 @@
+package tp.pr5;
+
+
+import tp.pr5.console.Console;
+import tp.pr5.instructions.Instruction;
+import tp.pr5.instructions.QuitInstruction;
+import tp.pr5.instructions.exceptions.InstructionExecutionException;
+import tp.pr5.items.InventoryObserver;
+import tp.pr5.items.ItemContainer;
+
+public class RobotEngine extends tp.pr5.Observable<RobotEngineObserver>{
+	private NavigationModule navega;
+	private int fuel;
+	private int recycledMaterial;
+	//private boolean quit = false; //?????
+	private ItemContainer container;
+	private RobotEngineObserver robObs;
+	private NavigationObserver navObs;
+	private InventoryObserver invObs;
+	private Direction direction;
+	
+
+	public RobotEngine (){
+		this.fuel = 100;
+		this.recycledMaterial = 0;
+		this.container = new ItemContainer ();
+		this.direction = Direction.NORTH;
+		this.navega = new NavigationModule();
+		this.navObs = new Console();
+		this.robObs = new Console();
+	}
+	
+	public RobotEngine(City map,
+	           Place initialPlace,
+	           Direction direction){
+		this.navega = new NavigationModule ( map, initialPlace);
+		this.recycledMaterial = 0;
+		this.fuel = 100;
+		this.container = new ItemContainer();
+		this.direction = direction;
+		this.navObs = new Console();
+		this.robObs = new Console();
+	}
+
+	public void communicateRobot(Instruction c){
+		 c.configureContext(this,this.navega,this.container);
+		 try{
+			 c.execute();
+		 }catch(InstructionExecutionException e){
+			 e.toString();
+		 }
+	}
+	
+	public boolean isOver(){
+		return this.fuel <= 0 || this.navega.getCurrentPlace().isSpaceship();// || this.quit  ;
+		
+	}
+
+	public void addRecycledMaterial(int weight){
+		this.recycledMaterial += weight;
+		this.robObs.robotUpdate(this.fuel, this.recycledMaterial);
+	}
+	
+	public void addFuel(int fuel){
+		this.fuel += fuel;
+		this.robObs.robotUpdate(this.fuel, this.recycledMaterial);
+	}
+	
+	public int getFuel(){
+		return this.fuel;
+		
+	}
+	
+	public int getRecycledMaterial(){
+		return this.recycledMaterial;
+		
+		
+	}
+	
+	public void requestStart(){
+		//this.control.startController();
+		this.navObs.initNavigationModule(this.navega.getCurrentPlace(), this.direction);
+		this.robObs.robotUpdate(fuel, recycledMaterial);
+	}
+	
+	public void requestQuit(){
+		QuitInstruction ins = new QuitInstruction();
+		//this.quit = true;
+		this.communicateRobot(ins);
+	}
+	
+	public void requestHelp(){
+		this.robObs.communicationHelp(Interpreter.interpreterHelp());
+	}
+	
+	public void requestError(java.lang.String msg){
+		this.robObs.raiseError(msg);
+	}
+	
+	public void saySomething(java.lang.String message){
+		this.robObs.robotSays(message);
+	}
+	
+	public void addNavigationObserver(NavigationObserver robotObserver){
+		this.navega.addNavigationObserver(robotObserver);
+		this.navObs = robotObserver;
+	}
+	
+	public void addEngineObserver(RobotEngineObserver observer){
+		this.robObs = observer;
+	}
+	
+	public void addItemContainerObserver(InventoryObserver observer){
+		this.invObs = observer;
+	}
+
+}
+

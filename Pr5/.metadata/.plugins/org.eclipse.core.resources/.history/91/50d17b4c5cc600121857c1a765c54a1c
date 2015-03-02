@@ -1,0 +1,63 @@
+package tp.pr5.items;
+
+import tp.pr5.NavigationModule;
+import tp.pr5.RobotEngine;
+/**
+ * Garbage es un tipo de item que genera recycled material después de usarlo.
+ * Garbage sólo puede usarse una vez.
+ * Después de usarla se debe eliminar del inventario del robot.
+ * @author Nerea Ramírez y Carmen Acosta
+ *
+ */
+public class Garbage extends Item{
+	private int recycledMaterial;
+	private boolean usar;
+	/**
+	 * Constructor que genera un garbage con la id, descripción y material dado.
+	 * @param id
+	 * @param description
+	 * @param recycledMaterial
+	 */
+	public Garbage(java.lang.String id,
+		       java.lang.String description,
+		       int recycledMaterial){
+		super (id, description);
+		this.times=1;
+		this.recycledMaterial = recycledMaterial;
+		this.usar = true;
+	}
+	/**
+	 * return true si todavia no se ha usado el item.
+	 */
+	public boolean canBeUsed(){
+		return this.usar;
+		
+	}
+	/**
+	 * Este método si canBeUsed() devuelve true entonces genera recycled material
+	 * para el robot que la está usando.También dejará reflejado que no se podrá volver ha utilizar.
+	 * @return true si consigue usarla.
+	 */
+	public boolean use(RobotEngine r,
+	          NavigationModule nav){
+		boolean usa;
+		if (this.canBeUsed()){
+			r.addRecycledMaterial(this.recycledMaterial);
+			this.usar = false;
+			this.times--;
+			usar= true;
+		}
+		
+		usa=false;
+		return usa;
+		
+	}
+	/**
+	 * Genera una cadena con la descripción del elemento.
+	 */
+	public java.lang.String toString(){
+		return this.id + ": "+ this.description;
+		
+	}
+	
+}

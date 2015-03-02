@@ -1,0 +1,98 @@
+package tp.pr5.gui;
+
+import java.awt.Color;
+
+import tp.pr5.Place;
+import tp.pr5.PlaceInfo;
+
+/**
+ * 
+ * @author Carmen Acosta Morales y Nerea Ramirez Lamela
+ * Representa un lugar en la ciudad en la interfaz Swing. Se trata de un botón que contiene la información de un lugar.
+ * A PlaceCell necesita almacenar una referencia al lugar que representa. Sin embargo, este lugar no debe ser modificado por el PlaceCell.
+ * Cuando el usuario hace clic en un PlaceCell la NavigationPanel mostrará la descripción del lugar si el lugar fue visitado anteriormente.
+ */
+@SuppressWarnings("serial")
+public class PlaceCell extends javax.swing.JButton{
+	private PlaceInfo place;
+	private boolean visitado;
+	private boolean actual;
+	
+	/**
+	 * Constructora por defecto que inicializa los campos de una celda que no posee un lugar 
+	 */
+	public PlaceCell (){
+		this.place = new Place();
+		this.visitado = false;
+		this.actual = false;
+	}
+	
+	/**
+	 * Constructora con parametros que inicializa una celda con un lugar concreto
+	 * @param initialPlace lugar que tiene la celda
+	 */
+	public PlaceCell(PlaceInfo initialPlace) {
+		// TODO Auto-generated constructor stub
+		this.place = initialPlace;
+		this.visitado = false;
+		this.actual = false;
+	}
+	
+	/**
+	 * Método que se encarga de modificar el color de la celda en función de si la celda ha sido visitada o no y si es actual o no
+	 */
+	public void color (){
+		if ( visitado && actual ){
+			this.setBackground(Color.GREEN);
+		}
+		else if ( visitado && !actual){
+			this.setBackground(Color.LIGHT_GRAY);
+		}
+	}
+
+	/**
+	 * Muestra si una celda ha sido visitada o no
+	 * @return si ha sido (true) o no (false) visitada
+	 */
+	public boolean isVisitado() {
+		return visitado;
+	}
+
+	/**
+	 * Modifica el valor de visitado de una celda 
+	 * @param visitado 
+	 */
+	public void setVisitado(boolean visitado) {
+		this.visitado = visitado;
+	}
+
+	/**
+	 * Muestra si la celda es la posición en la que se encuentra actualmente el robot o no
+	 * @return si la celda es la actual (true) o no(false)
+	 */
+	public boolean isActual() {
+		return actual;
+	}
+
+	/**
+	 * Modifica el valor de la celda o bien porque el robot ya no esta en ella y deja de ser actual o porque el robot
+	 * ha llegado a ella y pasa a ser actual 
+	 * @param actual nuevo valor de actual de la celda
+	 */
+	public void setActual(boolean actual) {
+		this.actual = actual;
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+	public PlaceInfo getPlace() {
+		return place;
+	}
+
+	/*public void setPlace(PlaceInfo place) {
+		this.place = place;
+	}*/
+	
+}

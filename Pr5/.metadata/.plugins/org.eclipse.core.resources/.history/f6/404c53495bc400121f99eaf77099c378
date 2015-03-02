@@ -1,0 +1,114 @@
+package tp.pr5;
+
+import java.util.Iterator;
+
+import tp.pr5.console.Console;
+import tp.pr5.instructions.exceptions.InstructionExecutionException;
+import tp.pr5.items.Item;
+
+public class NavigationModule extends tp.pr5.Observable<NavigationObserver> {
+	private City city;
+	private Direction direction;
+	private Place initialPlace;
+
+	public NavigationModule (){
+		this.city = new City();
+		this.direction = Direction.UNKNOWN;
+		this.initialPlace = new Place();
+	}
+	
+	public NavigationModule(City aCity,
+            Place initialPlace){
+		this.city = aCity;
+		this.initialPlace = initialPlace;
+		this.direction = Direction.NORTH;
+	}
+	
+	public boolean atSpaceship(){
+		return this.initialPlace.isSpaceship();
+		
+	}
+	
+	public void rotate(Rotation rotation){
+		this.direction = this.direction.rotate(rotation);
+	}
+	
+	public void move()
+	          throws InstructionExecutionException{
+		Street calle = this.getHeadingStreet();
+		
+		if(calle==null){
+			throw new InstructionExecutionException("There's no street");
+		}
+		else{
+			if(calle.isOpen()){
+				this.initialPlace = calle.nextPlace(this.initialPlace);
+				Iterator <NavigationObserver> navOb = this.iterator();
+				while (navOb.hasNext()){
+					NavigationObserver  aux = navOb.next(); 
+					aux.placeHasChanged(this.initialPlace);
+					aux.robotArrivesAtPlace(this.direction, this.initialPlace);
+				}
+			}
+			else{
+				throw new InstructionExecutionException( "The street is closed.");
+			}			
+		}	
+	}
+	
+	public Item pickItemFromCurrentPlace(java.lang.String id){
+		Item item = null;
+		if( this.initialPlace.existItem(id)){
+			item = this.initialPlace.pickItem(id);
+			Iterator <NavigationObserver> navOb = this.iterator();
+			while (navOb.hasNext()){
+				navOb.next().placeHasChanged(this.initialPlace);
+			}
+		}
+		return item;
+	}
+	
+	public void dropItemAtCurrentPlace(Item item){
+		if ( !this.initialPlace.existItem(item.getId())){
+			this.initialPlace.addItem(item);
+			/*Iterator <NavigationObserver> navOb = this.iterator();
+			while (navOb.hasNext()){
+				navOb.next().placeHasChanged(this.initialPlace);
+			}*/
+		}
+	}
+	
+	public boolean findItemAtCurrentPlace(java.lang.String id){
+		return this.initialPlace.existItem(id);
+		
+	}
+	
+	public void initHeading(Direction heading){
+		this.direction = heading;
+		Iterator <NavigationObserver> navOb = this.iterator();
+		while (navOb.hasNext()){
+			navOb.next().headingChanged(this.direction);
+		}
+	}
+	
+	public void scanCurrentPlace(){
+		this.initialPlace.toString();
+	}
+	
+	public Street getHeadingStreet(){
+		return this.city.lookForStreet( this.initialPlace, this.direction);
+		
+	}
+	
+	public Direction getCurrentHeading(){
+		return this.direction;
+		
+	}
+	
+	public Place getCurrentPlace(){
+		return this.initialPlace;
+		
+	}
+	
+	
+}

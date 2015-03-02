@@ -1,0 +1,139 @@
+package tp.pr5.gui;
+
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JSplitPane;
+
+import tp.pr5.RobotEngineObserver;
+
+@SuppressWarnings("serial")
+public class MainWindow extends JFrame implements RobotEngineObserver {
+	private GUIController control;
+	
+	private RobotPanel robPanel;
+	protected NavigationPanel navPanel;
+	private InfoPanel infPanel;
+	
+	private Container panel;
+	private JSplitPane splitPane;
+	private JMenu jMenu;
+	private JMenuBar jMenuBar;
+	private JMenuItem jMenuQuit;
+	private ButtonPanel buttonPanel;
+
+	public MainWindow(GUIController gameController){
+		this.control = gameController;
+		
+		
+		this.navPanel = new NavigationPanel();
+		this.robPanel = new RobotPanel();
+		this.infPanel = new InfoPanel();
+		this.navPanel.fijarControlador(control);
+		this.robPanel.fijarControlador(control);
+		this.buttonPanel.fijarControlador(control);
+		
+		this.initPanel();
+		
+		this.jMenuQuit.addActionListener(control);
+		this.control.registerEngineObserver(this);
+		this.control.registerEngineObserver(robPanel);
+		this.control.registerEngineObserver(infPanel);
+		this.control.registerItemContainerObserver(robPanel);
+		this.control.registerItemContainerObserver(infPanel);
+		this.control.registerRobotObserver(infPanel);
+		this.control.registerRobotObserver(navPanel);
+		
+	}
+	
+	public void superPanel (){
+		//Create a split pane with the two scroll panes in it.
+	    this.buttonPanel = new ButtonPanel ();
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.buttonPanel, this.robPanel);
+		splitPane.setDividerLocation(275);
+	}
+	
+	/**
+	 * Inicializamos todo el panel de la MainWindow
+	 */
+	public void initPanel(){
+	    this.setSize(3*320, 340);
+	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    this.panel = this.getContentPane();
+	    this.jMenu = new JMenu("File");
+	    this.jMenuBar = new JMenuBar ();
+
+	   
+	    this.superPanel();
+	    
+	    this.jMenuQuit = new JMenuItem ("Quit");
+	    this.jMenu.add( this.jMenuQuit);
+	    
+	    this.jMenuQuit.setName("jButtonQuit");
+	    
+	    this.setJMenuBar(jMenuBar);
+	    this.jMenuBar.add(jMenu);
+	    
+	    this.panel.add(splitPane, BorderLayout.NORTH);
+	    this.panel.add(this.navPanel, BorderLayout.CENTER);
+	    this.panel.add(this.infPanel, BorderLayout.SOUTH);
+	  
+	    this.pack();
+		}
+	 
+	/**
+	 * M�todo que se encarga de arrancar la vista de la interfaz
+	 */
+	public void arranca(){
+       EventQueue.invokeLater(new Runnable(){
+       	public void run() {
+       		setVisible(true);
+       	}
+       });		
+	}
+	
+	@Override
+	public void raiseError(String msg) {
+		// TODO Auto-generated method stub
+		JOptionPane.showMessageDialog (null,msg);
+	}
+
+	@Override
+	public void communicationHelp(String help) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void engineOff(boolean atShip) {
+		// TODO Auto-generated method stub
+		this.robPanel.engineOff(atShip);
+	}
+
+	@Override
+	public void communicationCompleted() {
+		// TODO Auto-generated method stub
+		 if (JOptionPane.showConfirmDialog(null, "Would you like to quit the game?") == 0){
+				System.exit(0);				
+		}
+	}
+
+	@Override
+	public void robotUpdate(int fuel, int recycledMaterial) {
+		// TODO Auto-generated method stub
+		this.robPanel.robotUpdate(fuel, recycledMaterial);
+	}
+
+	@Override
+	public void robotSays(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+}

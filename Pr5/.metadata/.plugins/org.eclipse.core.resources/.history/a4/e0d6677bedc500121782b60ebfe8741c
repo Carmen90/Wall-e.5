@@ -1,0 +1,206 @@
+package tp.pr5.gui;
+
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.EventObject;
+
+import javax.swing.JComboBox;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+
+import tp.pr5.Interpreter;
+import tp.pr5.NavigationModule;
+import tp.pr5.RobotEngine;
+import tp.pr5.instructions.Instruction;
+import tp.pr5.instructions.exceptions.WrongInstructionFormatException;
+
+public class GUIController extends tp.pr5.Controller implements ActionListener, FocusListener, MouseListener{
+	private RobotEngine robot;
+	private NavigationModule navigation;
+	protected RobotPanel robPanel;
+	protected NavigationPanel navPanel;
+	private MainWindow main;
+	protected InfoPanel infPanel;
+	
+	private String jTextField;
+	private String turn = "right";
+	private String item = "";
+	
+	public GUIController(RobotEngine robot){
+		this.robot = robot;
+		this.navPanel = new NavigationPanel();
+		this.navigation = new NavigationModule();
+		this.robPanel = new RobotPanel();
+		this.infPanel = new InfoPanel();
+		this.main = new MainWindow(this);
+		this.registerEngineObserver();
+		this.registerItemContainerObserver();
+		this.registerRobotObserver();
+		this.navPanel.fijarControlador(this);
+		this.robPanel.fijarControlador(this);
+	}
+
+	@Override
+	public void registerEngineObserver() {
+		// TODO Auto-generated method stub
+		this.robot.addEngineObserver(main);
+		this.robot.addNavigationObserver(navPanel);
+		this.robot.addEngineObserver(infPanel);
+		this.robot.addNavigationObserver(infPanel);
+	}
+
+	@Override
+	public void registerItemContainerObserver() {
+		// TODO Auto-generated method stub
+		this.robot.addItemContainerObserver(robPanel);
+		this.robot.addItemContainerObserver(infPanel);
+	}
+
+	@Override
+	public void registerRobotObserver() {
+		// TODO Auto-generated method stub
+		this.navigation.add(navPanel);
+		this.navigation.add(infPanel);
+	}
+
+	@Override
+	public void startController() {
+		// TODO Auto-generated method stub
+		main.arranca();
+	//	this.robot.requestStart();
+	}
+	
+	//////////////////METODOS DEL ACTIONLISTENER Y EL FOCUSLISTENER
+	
+	public void cambiarModelo( Component fuente) 
+			throws WrongInstructionFormatException{
+		 Instruction instruction;
+		if (robot.getFuel() != 0){ 
+			if ( fuente.getName().equals("jButtonMove")){
+				instruction = Interpreter.generateInstruction("MOVE");
+				this.robot.communicateRobot(instruction);
+			}
+			else if ( fuente.getName().equals("jButtonPick")){
+				if (jTextField != null){
+					instruction = Interpreter.generateInstruction("PICK "+ jTextField);
+					this.robot.communicateRobot(instruction);
+				}
+			}
+			else if ( fuente.getName().equals("jTextItem")){
+				JTextField item = (JTextField) fuente;
+				jTextField = (String) item.getText();
+			}
+			else if ( fuente.getName().equals("jButtonOperate")){
+				if (jTextField != null){
+					instruction = Interpreter.generateInstruction("OPERATE "+ item);
+					this.robot.communicateRobot(instruction);
+				} 
+			}
+			else if  ( fuente.getName().equals("jButtonDrop")){
+				if (jTextField != null){
+					instruction = Interpreter.generateInstruction("DROP "+ item);
+					this.robot.communicateRobot(instruction);
+				} 
+			}
+			else if ( fuente.getName().equals("jButtonTurn")){
+				instruction = Interpreter.generateInstruction("TURN "+ turn);
+				this.robot.communicateRobot(instruction);
+			}
+			else if (fuente.getName().equals("comboTurn")){
+				@SuppressWarnings("rawtypes")
+				JComboBox gira = (JComboBox) fuente;
+				this.turn =  (String)gira.getSelectedItem();
+			}
+			else if (fuente.getName().equals("jButtonQuit")){
+				instruction = Interpreter.generateInstruction("QUIT");
+				this.robot.communicateRobot(instruction);
+			}	
+			else if ( fuente.getName().equals("placeCell")){
+				PlaceCell place = (PlaceCell) fuente;
+				if (place.isVisitado()){
+					this.navPanel.placeHasChanged(place.getPlace());
+				}
+				else{
+					this.robPanel.raiseError("There is no place");
+				}
+			}
+			else if ( fuente.getName().endsWith("jTableItems")){
+				JTable tabla= (JTable) fuente;
+				this.item = (String) tabla.getValueAt(tabla.getSelectedRow(), tabla.getSelectedColumn());
+			}
+		}
+		else{
+			this.robPanel.engineOff(false);
+		}
+		
+	}
+	
+	/**
+	 * M�todo para tratar los eventos de forma gen�rica. 
+	 * Se encarga tanto de solicitar la modificaci�n al modelo como de informar a la vista
+	 * @param e el evento a tratar
+	 */
+	private void trataEventoGenerico(EventObject event){
+		Component fuente = (Component) event.getSource(); // el que gener� el evento
+		try {
+			cambiarModelo(fuente);
+		} catch (WrongInstructionFormatException e) {
+			// TODO Auto-generated catch block
+		
+		}
+	}	
+
+	@Override
+	public void focusGained(FocusEvent arg0) {
+		// TODO Auto-generated method stub
+		trataEventoGenerico(arg0);
+	}
+
+	@Override
+	public void focusLost(FocusEvent arg0) {
+		// TODO Auto-generated method stub
+		trataEventoGenerico(arg0);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		// TODO Auto-generated method stub
+		trataEventoGenerico(arg0);
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		trataEventoGenerico(arg0);
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

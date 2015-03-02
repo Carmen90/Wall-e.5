@@ -1,0 +1,76 @@
+package tp.pr5.console;
+
+import java.util.Scanner;
+
+import tp.pr5.Interpreter;
+import tp.pr5.NavigationModule;
+import tp.pr5.RobotEngine;
+import tp.pr5.instructions.Instruction;
+import tp.pr5.instructions.exceptions.WrongInstructionFormatException;
+
+public class ConsoleController extends tp.pr5.Controller {
+	private RobotEngine robot;
+	private Console consola;
+	private Instruction instruction;
+	private NavigationModule navigation;
+
+	public ConsoleController(RobotEngine game){
+		this.robot = game;
+		this.consola = new Console();
+		this.navigation = new NavigationModule();
+		this.registerEngineObserver();
+		this.registerRobotObserver();
+		this.registerItemContainerObserver();
+	}
+
+	@Override
+	public void registerEngineObserver() {
+		// TODO Auto-generated method stub
+		robot.addEngineObserver(consola);
+		robot.addNavigationObserver(consola);
+	}
+
+	@Override
+	public void registerItemContainerObserver() {
+		// TODO Auto-generated method stub
+		robot.addItemContainerObserver(consola);
+	}
+
+	@Override
+	public void registerRobotObserver() {
+		// TODO Auto-generated method stub
+		this.navigation.add(consola);
+	}
+
+	@Override
+	public void startController() {
+		// TODO Auto-generated method stub
+		@SuppressWarnings("resource")
+		Scanner leer = new Scanner(System.in);
+		String linea;
+		
+		while ( !this.robot.isOver()){
+			consola.robotSays("WALL·E> ");
+			linea = leer.nextLine();
+				
+			try {
+				this.instruction = Interpreter.generateInstruction (linea);
+				this.robot.communicateRobot(instruction);
+				if (this.robot.getCurrentPlace().isSpaceship()){
+					consola.engineOff(true);
+					System.exit(0);
+				}	
+				if ( this.robot.getFuel() == 0){
+					consola.engineOff(false);
+					System.exit(0);
+				}
+			} 
+			catch (WrongInstructionFormatException e) {
+				System.err.println ( "WrongInstructionFormatException");
+			} 
+			
+
+		}
+		System.exit(0);
+	}
+}

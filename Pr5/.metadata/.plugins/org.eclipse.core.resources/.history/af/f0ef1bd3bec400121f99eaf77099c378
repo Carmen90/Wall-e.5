@@ -1,0 +1,66 @@
+package tp.pr5.instructions;
+
+import java.util.Iterator;
+
+import tp.pr5.NavigationModule;
+import tp.pr5.NavigationObserver;
+import tp.pr5.RobotEngine;
+import tp.pr5.instructions.exceptions.InstructionExecutionException;
+import tp.pr5.instructions.exceptions.WrongInstructionFormatException;
+import tp.pr5.items.ItemContainer;
+
+/**
+ * @author Carmen Acosta Morales y Nerea Ramirez Lamela
+ * Esta clase se encarga de mostrar la informacion de un lugar y los items que hay en �l.
+ * Configura el contexto segun la informacion de un modulo de navegaci�n dado.
+ * Parsea una cadena para saber si esta hace referencia a una instrucci�n de tipo Radar, sino lanza una excepci�n del tipo
+ * WrongInstructionFormatException. Si la cadena es correcta ( "Radar" ) devuelve una RadarInstruction. 
+ * Si alguno de los atributos es nulo y se intenta acceder a �l salta una excepcion del tipo NullPointerException. 
+ * Tiene cuatro atributos, navega, que contiene la informacion del entorno del robot, robot, que contiene el estado del robot,
+ * container que contiene los Items que contiene el robot en su invenatrio e id, que es la id del item a operar.
+ * El m�todo getHelp te indica los par�metros que se aceptan como validos para esta instrucci�n.
+ *
+ */
+public class RadarInstruction implements Instruction{
+	private NavigationModule navega;
+
+	public RadarInstruction (){
+		this.navega = new NavigationModule ();
+	}
+
+	@Override
+	public Instruction parse(String cad) throws WrongInstructionFormatException {
+		// TODO Auto-generated method stub
+		String []cadena = cad.split(" ");
+		if ( !cadena[0].equalsIgnoreCase("RADAR") || cadena.length != 1){
+			throw new WrongInstructionFormatException();
+		}
+		return this;
+	}
+
+	@Override
+	public String getHelp() {
+		// TODO Auto-generated method stub
+		return "RADAR";
+	}
+
+	@Override
+	public void configureContext(RobotEngine engine,
+			NavigationModule navigation, ItemContainer robotContainer) {
+		// TODO Auto-generated method stub
+		this.navega = navigation;
+	}
+
+	@Override
+	public void execute() throws InstructionExecutionException {
+		// TODO Auto-generated method stub
+	//	this.navega.scanCurrentPlace();
+		Iterator <NavigationObserver> navOb = this.navega.iterator();
+		while (navOb.hasNext()){
+			NavigationObserver  aux = navOb.next(); 	
+			aux.placeScanned(this.navega.getCurrentPlace());
+			aux.robotArrivesAtPlace(this.navega.getCurrentHeading(), this.navega.getCurrentPlace());
+		}
+	}
+
+}

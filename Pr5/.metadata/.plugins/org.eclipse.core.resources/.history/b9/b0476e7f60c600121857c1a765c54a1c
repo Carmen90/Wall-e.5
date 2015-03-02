@@ -1,0 +1,186 @@
+package tp.pr5.console;
+
+import java.util.List;
+
+import tp.pr5.Direction;
+import tp.pr5.NavigationObserver;
+import tp.pr5.PlaceInfo;
+import tp.pr5.RobotEngineObserver;
+import tp.pr5.items.InventoryObserver;
+import tp.pr5.items.Item;
+
+/**
+ * Clase que se encarga de mostrar en la consola los diferentes mensajes de ejecución del juego. Implementa tres interfaces, cada una de 
+ * ellas con los métodos a implementar en cada una de las vistas que se implementan. Esta clase solo contiene contiene salidas por consola
+ * y no se encarga de ningun input.
+ * @author Carmen Acosta Morales y Nerea Ramirez Lamela
+ *
+ */
+public class Console extends java.lang.Object implements NavigationObserver, RobotEngineObserver, InventoryObserver {
+	String LINE_SEPARATOR = System.getProperty("line.separator");
+	ConsoleController control;
+	
+	/**
+	 * Constructora con un parámetro que se encarga de inicializar el controlador con el parametro dado y que registra en dicho
+	 * controlador los observadores.
+	 * @param control valor al que se inicia el controlador
+	 */
+	public Console ( ConsoleController control){
+		this.control = control;
+		this.control.registerEngineObserver(this);
+		this.control.registerItemContainerObserver(this);
+		this.control.registerRobotObserver(this);
+	}
+	
+	/**
+	 * Muestra por consola los mensajes de error que recibe comp parametro
+	 * @param msg mensaje de error a mostrar
+	 */
+	@Override
+	public void raiseError(String msg) {
+		// TODO Auto-generated method stub
+		System.out.println(msg);
+	}
+
+	/**
+	 * Muestra por consola la instrucciones válidas a ejecutar por el robot
+	 * @param help mensaje a mostrar
+	 */
+	@Override
+	public void communicationHelp(String help) {
+		// TODO Auto-generated method stub
+		System.out.println(help);
+	}
+
+	/**
+	 * Se encarga de mostrar dos mensajes distintos en función de si el robot esta o no en SpaceShip, si lo esta muestra un mensaje de que ha 
+	 * llegado a la nave, sino muestra el mensaje de que el robot se ha quedado sin fuel. En ambos casos termina la ejecucion.
+	 * @param atShip indica si el robot esta (true) o no (false) en la nave
+	 */
+	@Override
+	public void engineOff(boolean atShip) {
+		// TODO Auto-generated method stub
+		if (atShip){
+			System.out.println ( "WALL·E says: I am at my spaceship. Bye bye");
+			System.exit(0);
+		}
+		else{
+			System.out.println ("WALL·E says: I run out of fuel. I cannot move. Shutting down...");
+			System.exit(0);
+		}
+	}
+
+	/**
+	 * Muestra el mensaje de cuando se ejecuta la instrucción quit.
+	 */
+	@Override
+	public void communicationCompleted() {
+		// TODO Auto-generated method stub
+		System.out.println ("WALL·E says: Bye Bye");
+	}
+
+	/**
+	 * Muestra las actualizaciones de fuel y recycled material del robot por consola
+	 * @param fuel
+	 * @param recycledMaterial
+	 */
+	@Override
+	public void robotUpdate(int fuel, int recycledMaterial) {
+		// TODO Auto-generated method stub
+		System.out.println ("      * My power is " + fuel);
+		System.out.println ("      * My recycled material is " + recycledMaterial);
+	}
+
+	/**
+	 * Muestra el mensaje que el robot quiere transmitir en un momento dado asi como el "WALL.E>" que se muestra para indicar la 
+	 * escritura por consola
+	 * @param message mensaje del robot a mostrar
+	 */
+	@Override
+	public void robotSays(String message) {
+		// TODO Auto-generated method stub
+		if (message.equalsIgnoreCase("WALL·E> ")){
+			System.out.print(message);
+		}
+		else{
+			System.out.println(message);
+		}
+	}
+
+	/**
+	 * Muestra la dirección en la que esta mirando el robot por consola
+	 * @param newHeading dirección en la que mira el robot
+	 */
+	@Override
+	public void headingChanged(Direction newHeading) {
+		// TODO Auto-generated method stub
+		System.out.println ("WALL·E is looking at direction " + newHeading);
+	}
+
+	/**
+	 * Muestra el inicio de la ejecución en consola. Es decir, muestra una descripción del lugar con los objetos que posee y la dirección 
+	 * en la que esta mirando el robot
+	 * @param initialPlace lugar del que se muestra la descripcion
+	 * @param heading dirección que se muestra
+	 */
+	@Override
+	public void initNavigationModule(PlaceInfo initialPlace, Direction heading) {
+		// TODO Auto-generated method stub
+		this.robotArrivesAtPlace(heading, initialPlace);
+		this.headingChanged(heading);
+	}
+
+	/**
+	 * Muestra la descripción del lugar y la descripción al que el robot ha llegado, asi como los items que dicho lugar contiene
+	 * @param heading dirección en la que mira el robot (no usado)
+	 * @param place información del lugar del que se muestra la descripción
+	 */
+	@Override
+	public void robotArrivesAtPlace(Direction heading, PlaceInfo place) {
+		// TODO Auto-generated method stub
+		System.out.println( place.toString());
+	}
+
+	/**
+	 * Muestra la descripción de un lugar por consola. También muestra los items que tiene dicho lugar
+	 * @param placeDescription información del lugar del que se muestra la descripcion
+	 */
+	@Override
+	public void placeScanned(PlaceInfo placeDescription) {
+		// TODO Auto-generated method stub
+		System.out.println(placeDescription.getDescription());
+	}
+
+	/**
+	 * En esta clase este método no realiza ninguna operación
+	 * @param placeDescription información del lugar
+	 */
+	@Override
+	public void placeHasChanged(PlaceInfo placeDescription) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void inventoryChange(List<Item> inventory) {
+	}
+
+	@Override
+	public void inventoryScanned(String inventoryDescription) {
+		// TODO Auto-generated method stub
+		System.out.println (inventoryDescription.toString());
+		
+	}
+
+	@Override
+	public void itemScanned(String description) {
+		// TODO Auto-generated method stub
+		System.out.println(description);
+	}
+
+	@Override
+	public void itemEmpty(String itemName) {
+		// TODO Auto-generated method stub
+		//System.out.println(itemName);
+	}
+}

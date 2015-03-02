@@ -1,0 +1,176 @@
+package tp.pr5.items;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+/**
+ * Esta clase contiene un contenedor de items que puede usarlo
+ *  cualquier clase que almacene elementos.Este contenedor no
+ *   puede almacenar dos elementos conel mismo identificador.
+ *   Contiene m�todos para agregar elementosnuevos, acceder a ellos y sacarlos del contenedor. 
+ * @author Nerea Ram�rez y Carmen Acosta
+ *
+ */
+public class ItemContainer extends tp.pr5.Observable<InventoryObserver>{
+	private List <Item> container;
+	
+	String LINE_SEPARATOR = System.getProperty("line.separator");
+
+	/**
+	 * Constructora por defecto que inicializa el contenedor de items 
+	 */
+	public ItemContainer(){
+		this.container = new ArrayList <Item>();
+	}
+	/**
+	 * 
+	 * @return el tama�o de items que hay en el contenedor.
+	 */
+	public int numberOfItems(){
+		return this.container.size();
+		
+	}
+	/**
+	 * Agrega un elemento al contenedor.Esa operaci�n puede fallar 
+		Se busca el item con el m�todo binarySearch, si el contenedor ya ten�a ese item entonces no se podr� a�adir pero si por el contrario no se encuentra se a�ade y devuelve true
+	 * @param it
+	 * @return true si consigue a�adir con �xito el objeto.
+	 * @return
+	 */
+	public boolean addItem(Item item){
+		int i=0, j;
+		
+		i = Collections.binarySearch(this.container, item);
+		
+		if (i < 0){
+			j = -i -1;
+			this.container.add(j, item);
+		}	
+		Iterator <InventoryObserver> invOb = this.iterator();
+		while (invOb.hasNext()){
+			invOb.next().inventoryChange(this.container);
+		}
+		return i < 0;
+		
+	}
+	/**
+	 * Devuelve el elemento del contenedor que tenga el mismo id dado.
+	 * @param id - Identificaci�n del nombre del elemento. 
+	 * @return - El elemento con ese id o nulo si el contenedor no contiene ning�n elemento con el id dado.
+	 */
+	public Item getItem(java.lang.String id){
+		Item item = null;
+		
+		for ( Item itemAux : container){
+			if (itemAux.equals(id)){
+				item = itemAux;
+			}
+		}
+		return item;
+		
+	}
+	/**
+	 * Intenta coger un item que tenga el id que se le pasa por par�metro.
+	 * Si el item con el id dado no es nulo, se busca el item en el inventario del robot y se borra de �l.
+	 * @param id
+	 * @return- El item que se ha cogido del inventario del robot.
+	 */
+	public Item pickItem(java.lang.String id){
+		Item item = this.getItem(id);
+		if (item!=null){
+			int i=0;
+			i = Collections.binarySearch(this.container, item);
+			if ( i > 0) {
+				this.container.remove(i);
+				Iterator <InventoryObserver> invOb = this.iterator();
+				while (invOb.hasNext()){
+					invOb.next().inventoryChange(this.container);
+				}
+			}this.container.remove(i);
+		}
+		return item;
+		
+	}
+	
+	@Override
+	/**
+	 *Genera una cadena con la informaci�n  de los elementos que figuran en el contenedor .
+	 *Los art�culos aparecen ordenados por el nombre del elemento.
+	 */
+	public java.lang.String toString(){
+		String st = "   ";
+		String espacios = "   ";
+		int i = 0;
+		
+		for ( Item aux : container){
+			st = st + aux.id ;
+			if(i != this.container.size()-1){
+				st = st + LINE_SEPARATOR + espacios;
+			}
+			i++;
+		}
+		return st + LINE_SEPARATOR;
+		
+	}
+	/**
+	 * Este m�todo comprueba si un elemento pasando su id  se encuentra en el inventario.
+	 * @param id - Nombre del item
+	 * @return true si se encuentra en el contenedor, false si es al rev�s.
+	 */
+	public boolean containsItem(java.lang.String id){
+		Item item = null;
+		item = this.getItem(id);		
+		return item != null;
+		
+	}
+	/**
+	 * Método llamado por el OperateInstruction cuando se opera con exito un elemento del contenedor del robot
+	 *  La colecci�n a continuaci�n, comprueba si el art�culo podr�a ser utilizado de nuevo en el futuro. 
+	 *  Si no es posible debido a que el item es "vac�o", a continuaci�n, se elimina de la contenedor 
+	 *  (y el m�todo notifica a todos los observadores).
+	 * @param item que se utilizar�.
+	 */
+	public void useItem(Item item){
+		int i = -1;
+		if (!item.canBeUsed()){
+			i = Collections.binarySearch(this.container, item);
+			if ( i >= 0){
+				this.container.remove(i);
+				Iterator <InventoryObserver> invOb = this.iterator();
+				while (invOb.hasNext()){
+					invOb.next().inventoryChange(this.container);
+				}
+			}
+		}
+	}
+	/**
+	 * Se Informa a los InventoryObservers de que se requiere un scaner de los items que tiene el robot, lo cual
+	 * muestra todos los elementos que tiene el robot en su inventario
+	 */
+	public void requestScanCollection(){
+		Iterator <InventoryObserver> invOb = this.iterator();
+		
+		while (invOb.hasNext()){
+			InventoryObserver aux = invOb.next();
+			aux.inventoryScanned(this.toString());
+		}
+		
+	}
+
+	/**
+	 * Se Informa a los InventoryObservers de que se requiere un scaner de un item en concreto, mostrando esto la 
+	 * descripción del mismo
+	 * @param id identificación del item del que se quiere saber su descripción 
+	 */
+	public void requestScanItem(java.lang.String id){
+		Iterator <InventoryObserver> invOb = this.iterator();
+		while (invOb.hasNext()){
+			Item it = this.getItem(id);
+			invOb.next().itemScanned(it.description);
+		}
+	}
+	
+	
+}

@@ -1,0 +1,65 @@
+ package tp.pr5.console;
+
+import java.util.Scanner;
+
+import tp.pr5.Interpreter;
+import tp.pr5.NavigationModule;
+import tp.pr5.NavigationObserver;
+import tp.pr5.RobotEngine;
+import tp.pr5.RobotEngineObserver;
+import tp.pr5.instructions.Instruction;
+import tp.pr5.instructions.exceptions.WrongInstructionFormatException;
+import tp.pr5.items.InventoryObserver;
+
+/**
+ * 
+ * @author Carmen Acosta Morales y Nerea Ramirez Lamela
+ *
+ */
+public class ConsoleController extends tp.pr5.Controller {
+	private Instruction instruction;
+
+	public ConsoleController(RobotEngine game){
+		super(game);
+	}
+
+	@Override
+	public void registerEngineObserver(RobotEngineObserver consola) {
+		// TODO Auto-generated method stub
+		robot.addEngineObserver(consola);
+	}
+
+	@Override
+	public void registerItemContainerObserver(InventoryObserver consola) {
+		// TODO Auto-generated method stub
+		robot.addItemContainerObserver(consola);
+	}
+
+	@Override
+	public void registerRobotObserver( NavigationObserver consola) {
+		// TODO Auto-generated method stub
+		robot.addNavigationObserver(consola);
+	}
+
+	@Override
+	public void startController() {
+		// TODO Auto-generated method stub
+		@SuppressWarnings("resource")
+		Scanner leer = new Scanner(System.in);
+		String linea;
+		
+		while ( !this.robot.isOver()){
+			robot.saySomething("WALL·E> ");
+			linea = leer.nextLine();
+				
+			try {
+				this.instruction = Interpreter.generateInstruction (linea);
+				this.robot.communicateRobot(instruction);
+			} 
+			catch (WrongInstructionFormatException e) {
+				System.err.println ( "WrongInstructionFormatException");
+			} 
+		}
+		System.exit(0);
+	}
+}

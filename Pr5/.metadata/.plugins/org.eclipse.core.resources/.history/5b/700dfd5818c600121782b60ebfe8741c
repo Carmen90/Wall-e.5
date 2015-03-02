@@ -1,0 +1,20 @@
+package tp.pr5;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+
+
+public class Observable <T> extends java.util.Observable implements Iterable<T>{
+	private Collection <T> misVistas = new ArrayList <T>();//crearLista();
+	
+	public void add( T obs){
+		this.misVistas.add(obs);
+	}
+	
+	@Override
+	public Iterator<T> iterator() {
+		// TODO Auto-generated method stub
+		return this.misVistas.iterator();
+	}
+}

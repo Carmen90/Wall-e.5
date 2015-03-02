@@ -1,0 +1,34 @@
+package tp.pr5;
+
+
+import java.awt.List;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.Observer;
+
+import tp.pr5.console.Console;
+import tp.pr5.gui.MainWindow;
+import tp.pr5.gui.NavigationPanel;
+import tp.pr5.gui.RobotPanel;
+import tp.pr5.instructions.Instruction;
+
+public class Observable <T> extends java.util.Observable implements Iterable<T>{
+	private Collection <T> misVistas = new ArrayList <T>();//crearLista();
+	
+	/*
+	public void crearLista (){
+		this.misVistas = (new Console(), new MainWindow(), new RobotPanel(), new NavigationPanel());
+	}*/
+
+	public void add( T obs){
+		this.misVistas.add(obs);
+	}
+	@Override
+	public Iterator<T> iterator() {
+		// TODO Auto-generated method stub
+		return this.misVistas.iterator();
+	}
+}

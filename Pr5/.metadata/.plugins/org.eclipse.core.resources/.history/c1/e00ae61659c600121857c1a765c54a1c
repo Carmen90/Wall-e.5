@@ -1,0 +1,89 @@
+package tp.pr5.instructions;
+
+import java.util.Iterator;
+
+import tp.pr5.NavigationModule;
+import tp.pr5.NavigationObserver;
+import tp.pr5.RobotEngine;
+import tp.pr5.instructions.exceptions.InstructionExecutionException;
+import tp.pr5.instructions.exceptions.WrongInstructionFormatException;
+import tp.pr5.items.ItemContainer;
+
+/**
+ * @author Carmen Acosta Morales y Nerea Ramirez Lamela
+ * Esta clase se encarga de mostrar la informacion de un lugar y los items que hay en él.
+ * Configura el contexto segun la informacion de un modulo de navegación dado.
+ * Parsea una cadena para saber si esta hace referencia a una instrucción de tipo Radar, sino lanza una excepción del tipo
+ * WrongInstructionFormatException. Si la cadena es correcta ( "Radar" ) devuelve una RadarInstruction. 
+ * Si alguno de los atributos es nulo y se intenta acceder a él salta una excepcion del tipo NullPointerException. 
+ * Tiene cuatro atributos, navega, que contiene la informacion del entorno del robot, robot, que contiene el estado del robot,
+ * container que contiene los Items que contiene el robot en su invenatrio e id, que es la id del item a operar.
+ * El m�todo getHelp te indica los parámetros que se aceptan como validos para esta instrucción.
+ *
+ */
+public class RadarInstruction implements Instruction{
+	private NavigationModule navega;
+
+	/**
+	 * Constructora por defecto 
+	 */
+	public RadarInstruction (){
+		this.navega = new NavigationModule ();
+	}
+
+	/**
+	* Parsea la cadena que se mete por parametro para devolver un RadarInstruction. En caso de que la cadena no encaje con el 
+	* patrón que debe seguir una RadarInstruction se lanzará una excepción de tipo WrongInstructionFormatException()
+	* @param cad - cadena a parsear
+	* @returns Instruction instrucion de tipo Radar a la que hace referencia la cadena
+	* @throws WrongInstructionFormatException - cuando la cadena no es del tipo  RADAR
+	*/
+	@Override
+	public Instruction parse(String cad) throws WrongInstructionFormatException {
+		// TODO Auto-generated method stub
+		String []cadena = cad.split(" ");
+		if ( !cadena[0].equalsIgnoreCase("RADAR") || cadena.length != 1){
+			throw new WrongInstructionFormatException();
+		}
+		return this;
+	}
+
+	/**
+	 * Muestra los mensajes que son validos para ejecutar esta instrucción
+	 * @return mensaje valido "RADAR"
+	 */
+	@Override
+	public String getHelp() {
+		// TODO Auto-generated method stub
+		return " RADAR";
+	}
+
+	/**
+	 * Modifica el contexto del robot. Recive todo el robot ( engine, navigation, robotContainer) incluso
+	 * aunque no se utilicen en el metodo execute().
+	 * @param engine 
+	 * @param navigation entorno en el que se mueve y opera el robot
+	 * @param robotContainer 
+	 */
+	@Override
+	public void configureContext(RobotEngine engine,
+			NavigationModule navigation, ItemContainer robotContainer) {
+		// TODO Auto-generated method stub
+		this.navega = navigation;
+	}
+
+	/**
+	 * Devuelve la descripción del lugar en el que se encuentra el robot
+	 * @throws InstructionExecutionException  
+	 */
+	@Override
+	public void execute() throws InstructionExecutionException {
+		// TODO Auto-generated method stub
+		Iterator <NavigationObserver> navOb = this.navega.iterator();
+		while (navOb.hasNext()){
+			NavigationObserver  aux = navOb.next(); 	
+			aux.placeScanned(this.navega.getCurrentPlace());
+		}
+	}
+
+}

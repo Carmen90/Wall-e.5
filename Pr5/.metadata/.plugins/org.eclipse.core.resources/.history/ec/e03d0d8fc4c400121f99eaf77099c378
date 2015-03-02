@@ -1,0 +1,95 @@
+package tp.pr5.instructions;
+
+
+import tp.pr5.NavigationModule;
+import tp.pr5.RobotEngine;
+import tp.pr5.instructions.exceptions.InstructionExecutionException;
+import tp.pr5.instructions.exceptions.WrongInstructionFormatException;
+import tp.pr5.items.Item;
+import tp.pr5.items.ItemContainer;
+
+/**
+ * @author Carmen Acosta Morales y Nerea Ramirez Lamela
+ * Esta clase se encarga de depositar un objeto del inventario del robot en el lugar en el que el robot se encuentra.
+ * Configura el contexto segun el inventario del robot as� como de las condiciones del lugar, no pudiendo soltar un 
+ * objeto en un lugar en el que ya exista dicho objeto y saltando una excepci�n de tipo InstructionExecutionException en caso de intentarlo.
+ * Parsea una cadena para saber si esta hace referencia a una instrucci�n de tipo Drop, sino lanza una excepci�n del tipo
+ * WrongInstructionFormatException. Si la cadena es correcta ( "Drop <id>" o "Soltar <id>" ) devuelve una DropInstruction.
+ * Ignora may�sculas y min�sculas a la hora de parsear la cadena. 
+ * Si alguno de los atributos es nulo y se intenta acceder a �l salta una excepcion del tipo NullPointerException. 
+ * Tiene tres atributos, navega, que contiene la informacion del entorno del robot,
+ * container que contiene los Items que contiene el robot en su invenatrio e id, que es la id del item a soltar.
+ * El m�todo getHelp te indica los par�metros que se aceptan como validos para esta instrucci�n.
+ *
+ */
+public class DropInstruction implements Instruction {
+	private NavigationModule navega;
+	private ItemContainer container;
+	private RobotEngine robot;
+	private String id;
+
+	public DropInstruction (){
+		this.navega = new NavigationModule ();
+		this.container = new ItemContainer ();
+		this.robot = new RobotEngine();
+		this.id = "";
+	}
+	
+	@Override
+	public Instruction parse(String cad) 
+			throws WrongInstructionFormatException {
+		// TODO Auto-generated method stub
+		String [] cadena = cad.split(" ");/*Divide la cadena en espacios
+		y guarda cada fragmento en cada posici�n del array*/
+		
+		if ( cadena.length != 2){
+			throw new WrongInstructionFormatException();
+		}
+		else if (!cadena [0].equalsIgnoreCase("DROP") && !cadena [0].equalsIgnoreCase("SOLTAR")){
+			throw new WrongInstructionFormatException();
+		}
+		else{
+			this.id = cadena[1];
+			return this;
+		}
+	}
+
+	@Override
+	public String getHelp() {
+		// TODO Auto-generated method stub
+		return " DROP|SOLTAR <id>";
+	}
+
+	@Override
+	public void configureContext(RobotEngine engine,
+			NavigationModule navigation, ItemContainer robotContainer) {
+		// TODO Auto-generated method stub
+		this.navega = navigation;
+		this.container = robotContainer;
+		this.robot = engine;
+	}
+
+	@Override
+	public void execute() 
+			throws InstructionExecutionException {
+		// TODO Auto-generated method stub
+		Item it = null;
+
+		if(this.container.containsItem(this.id)){
+			if ( !navega.findItemAtCurrentPlace (this.id)){
+				it = this.container.getItem(this.id);
+				this.container.pickItem(id);
+				this.navega.dropItemAtCurrentPlace(it);
+				this.robot.saySomething("WALL·E says: Great! I have dropped " + this.id);
+			}else
+			{
+				throw new InstructionExecutionException();
+			}
+		}
+		else
+		{
+			throw new InstructionExecutionException("You do not have any " + this.id);
+		}
+	}
+
+}

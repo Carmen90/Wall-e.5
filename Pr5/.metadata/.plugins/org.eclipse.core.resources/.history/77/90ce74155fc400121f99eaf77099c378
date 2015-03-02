@@ -1,0 +1,139 @@
+package tp.pr5.gui;
+
+import java.awt.FlowLayout;
+import java.awt.LayoutManager;
+import java.util.List;
+
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
+
+import tp.pr5.RobotEngineObserver;
+import tp.pr5.items.InventoryObserver;
+import tp.pr5.items.Item;
+
+@SuppressWarnings("serial")
+public class RobotPanel extends javax.swing.JPanel implements RobotEngineObserver, InventoryObserver{
+	private JLabel jLabelFuel;
+	private JLabel jLabelRecicled;
+	private JScrollPane panel;
+	private JTable jTableItems;
+	private JPanel jLabelPanel;
+	
+	public RobotPanel(){
+		this.jLabelFuel = new JLabel ();
+		this.jLabelRecicled = new JLabel ();
+		this.jLabelPanel = new JPanel ();
+		initRobotPanel();
+	}
+	
+	/**
+	 * Inicializa un panel con el fuel y el recycled material
+	 */
+	public void labelPanel (){
+		
+		this.jLabelPanel.add(this.jLabelFuel);
+		this.jLabelPanel.add(this.jLabelRecicled);
+		
+		this.jLabelPanel.setLayout(new FlowLayout());
+	}
+	
+	/**
+	 * Método que se encarga de meter todos los componentes en el panel del robot
+	 */
+	public void initRobotPanel(){
+
+		String []columnas = {"id", "Descripcion"}; 
+		Object [][] data = {{"",""}};
+		this.jTableItems = new JTable (new DefaultTableModel (data, columnas));
+
+		
+		
+    	this.setBorder(new TitledBorder("Robot info"));
+    	
+        this.setName("Form Text");
+        this.setPreferredSize(new java.awt.Dimension (500, 100));
+	
+        this.jLabelFuel.setText("Fuel: ");
+		this.jLabelFuel.setHorizontalAlignment(JLabel.RIGHT);
+		this.jLabelFuel.setName("jLabelFuel");
+		
+		this.jLabelRecicled.setText("Recycled: ");
+		this.jLabelRecicled.setName("jLabelRecicled");
+		
+		this.panel = new JScrollPane (this.jTableItems);
+		labelPanel();
+		
+		this.add(this.jLabelPanel);
+		this.add(this.panel);
+		
+		LayoutManager thisLayout = new BoxLayout(this,1);
+        this.setLayout(thisLayout);
+	}
+	@Override
+	public void raiseError(String msg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void communicationHelp(String help) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void engineOff(boolean atShip) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void communicationCompleted() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void robotUpdate(int fuel, int recycledMaterial) {
+		// TODO Auto-generated method stub
+		this.jLabelFuel.setText ("Fuel: " + fuel);
+		this.jLabelRecicled.setText("Recycled: "+ recycledMaterial );
+	}
+
+	@Override
+	public void robotSays(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void inventoryChange(List<Item> inventory) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void inventoryScanned(String inventoryDescription) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void itemScanned(String description) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void itemEmpty(String itemName) {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+}

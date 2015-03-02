@@ -1,0 +1,47 @@
+package tp.pr5.items;
+
+import tp.pr5.NavigationModule;
+import tp.pr5.RobotEngine;
+import tp.pr5.Street;
+
+public class CodeCard extends Item{
+	private String code;
+
+	public CodeCard(java.lang.String id,
+	        java.lang.String description,
+	        java.lang.String code){
+		super (id, description);
+		this.code =code;
+		this.times = 1;
+	}
+	
+	public boolean canBeUsed(){
+		return true;
+		
+	}
+	
+	public boolean use(RobotEngine r,  NavigationModule nav){
+		boolean correcto = false;
+		Street calle = nav.getHeadingStreet();
+		 if (calle!= null && this.code.equalsIgnoreCase(calle.getCode()) ){
+			if ( !calle.isOpen()){
+				correcto = calle.open(this);	
+			}
+			else{
+				correcto = calle.close(this);
+			}
+		}
+		
+		return correcto;
+		
+	}
+	
+	public java.lang.String getCode(){
+		return this.code;
+		
+	}
+
+
+	
+	
+}

@@ -1,0 +1,129 @@
+package tp.pr5.items;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+
+
+public class ItemContainer extends tp.pr5.Observable<InventoryObserver>{
+	private List <Item> container;
+	
+	String LINE_SEPARATOR = System.getProperty("line.separator");
+
+	public ItemContainer(){
+		this.container = new ArrayList <Item>();
+	}
+	
+	public int numberOfItems(){
+		return this.container.size();
+		
+	}
+	
+	public boolean addItem(Item item){
+		int i=0, j;
+		
+		i = Collections.binarySearch(this.container, item);
+		
+		if (i < 0){
+			j = -i -1;
+			this.container.add(j, item);
+		}	
+		return i < 0;
+		
+	}
+	
+	public Item getItem(java.lang.String id){
+		Item item = null;
+		
+		for ( Item itemAux : container){
+			if (itemAux.equals(id)){
+				item = itemAux;
+			}
+		}
+		return item;
+		
+	}
+	
+	public Item pickItem(java.lang.String id){
+		Item item = this.getItem(id);
+		if (item!=null){
+			int i=0;
+			i = Collections.binarySearch(this.container, item);
+			if ( i > 0) this.container.remove(i);
+			this.container.remove(i);
+			Iterator <InventoryObserver> invOb = this.iterator();
+			while (invOb.hasNext()){
+				invOb.next().inventoryChange(this.container);
+			}
+		}
+		return item;
+		
+	}
+	
+	@Override
+	public java.lang.String toString(){
+		String st = "   ";
+		String espacios = "   ";
+		int i = 0;
+		
+		for ( Item aux : container){
+			st = st + aux.id ;
+			if(i != this.container.size()-1){
+				st = st + LINE_SEPARATOR + espacios;
+			}
+			i++;
+		}
+		return st;
+		
+	}
+	
+	public boolean containsItem(java.lang.String id){
+		Item item = null;
+		int i = -1;
+		item = this.getItem(id);
+		
+		if ( item != null){
+			i = Collections.binarySearch(this.container, item);
+		}
+		
+		return i >= 0;
+		
+	}
+	
+	public void useItem(Item item){
+		int i = -1;
+		if (!item.canBeUsed()){
+			i = Collections.binarySearch(this.container, item);
+			if ( i >= 0){
+				this.container.remove(i);
+				Iterator <InventoryObserver> invOb = this.iterator();
+				while (invOb.hasNext()){
+					invOb.next().inventoryChange(this.container);
+				}
+			}
+		}
+	}
+	
+	public void requestScanCollection(){
+		Iterator <InventoryObserver> invOb = this.iterator();
+		
+		while (invOb.hasNext()){
+			InventoryObserver aux = invOb.next();
+			for ( int i = 0; i < this.container.size(); i++){
+				aux.inventoryScanned(this.container.get(i).id);//.inventoryChange(this.container);
+			}
+		}
+		
+	}
+	
+	public void requestScanItem(java.lang.String id){
+		Iterator <InventoryObserver> invOb = this.iterator();
+		while (invOb.hasNext()){
+			Item it = this.getItem(id);
+			invOb.next().itemScanned(it.description);
+		}
+	}
+	
+	
+}

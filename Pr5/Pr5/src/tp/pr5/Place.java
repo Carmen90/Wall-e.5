@@ -1,0 +1,197 @@
+
+package tp.pr5;
+
+import java.util.ArrayList;
+import java.util.Collections;
+
+import tp.pr5.items.Item;
+/**
+ * Esta clase representa un lugar de la ciudad e implementa a placeInfo.
+ * Todo lugar está compuesto por un nombre y una descripción del mismo.La descripció se pondrá cuando el robot llegue a ese lugar.
+ * El lugar puede tener la nave donde el robot está a salvo.Cuando el robot llega a ese lugar, la simulación termina. 
+ * Cada lugar contiene un inventario con todos los items que hay en él.
+ * Aquí se podrácoger un item,ver si existe un objeto en el lugar, añadir un item al inventario del lugar, soltar item y ver si contiene la nave.
+ * @author Nerea Ramirez y Carmen Acosta.
+ *
+ */
+public class Place implements PlaceInfo {
+	private String description;
+	private String name;
+	private boolean isSpaceShip;
+	private ArrayList <Item> item;
+	String LINE_SEPARATOR = System.getProperty("line.separator");
+	
+	/**
+	 * Constructora sin parámetros
+	 */
+	public Place(){
+		this.isSpaceShip = false;
+		this.item = new ArrayList<Item>();
+		this.name = "";
+		this.description = "";
+	}
+	
+	/**
+	 * Crea el lugar con su correspondiente nombre y  descripción del lugar y si el lugar es la nave.
+	 * @param name
+	 * @param isSpaceShip
+	 * @param description
+	 */
+	public Place(java.lang.String name,
+		     boolean isSpaceShip,
+		     java.lang.String description){
+		this.description = description;
+		this.name = name;
+		this.isSpaceShip = isSpaceShip;
+		this.item = new ArrayList<Item>();
+	}
+	
+	
+	/**
+	 * Metodo qu reimplementa el metodo toString de java.
+	 * Devuelve el nombre, la descripción y la lista de items que contiene el lugar.
+	 */
+	@Override
+	public java.lang.String toString(){
+		String st = "   ";
+		if( this.item.size() != 0){
+			String espacios = "   ";
+			st = "The place contains these objects:"+ LINE_SEPARATOR + espacios;
+			
+			int i = 0;
+			
+			for ( Item aux : this.item){
+				st = st + aux.getId() ;
+				if(i!=this.item.size()-1){
+					st = st + LINE_SEPARATOR + espacios;
+				}
+				i++;
+			}
+			st += LINE_SEPARATOR;
+		}
+		else{
+			st = "The place is empty. There are no objects to pick" + LINE_SEPARATOR ;
+		}
+		return this.name.toString() + LINE_SEPARATOR +  this.description.toString() + LINE_SEPARATOR + st;//"The place contains these objects:" + LINE_SEPARATOR + st;
+		
+	}
+	
+	/**
+	 * Método que dado un id de un item te devuelve el item con ese id. En caso de no existir un item con ese id devuelve null
+	 * @param id del item a buscar
+	 * @return item con dicho id o null en caso de que no exista 
+	 */
+	public Item getItem(java.lang.String id){
+		Item it = null;
+		
+		for ( Item itemAux : item){
+			if (itemAux.equals(id)){
+				it = itemAux;
+			}
+		}
+		return it;
+	}
+	/**
+	 * Mira a ver si un item con el id que se pasa por parámetro existe en el lugar.
+	 * @param id
+	 * @return Si el item no es nulo la i será mayor o igual que 0 y por tanto devolverá true de lo contrario i=-1 <0 y por tanto devolerá false.
+	 */
+	public boolean existItem(java.lang.String id){
+		Item it = null;
+		int i = -1;
+		it = this.getItem(id);
+		
+		if ( it != null){
+			i = Collections.binarySearch(this.item, it);
+		}
+		
+		return i >= 0;
+		
+	}
+	/**
+	 * Intenta coger un item que tenga el id que se le pasa por parámetro.
+	 * Si el item con el id dado no es nulo, se busca el item en el inventario del lugar y se borra de él.
+	 * @param id
+	 * @return- El item que se ha cogido del inventario del lugar.
+	 */
+	public Item pickItem(java.lang.String id){
+		Item it = null;
+		int i = -1;
+		it = this.getItem(id);
+		
+		if ( it != null){
+			i = Collections.binarySearch(this.item, it);
+			if ( i >= 0)
+				this.item.remove(i);	
+		}
+			return it;	
+	}
+	/**
+	 * Intenta añadir un item al lugar.
+	 * Se busca el item con el método binarySearch, si el lugar ya tenía ese item entonces no se podrá añadir pero si pr el contrario no se encuentra en el lugar se añade y devuelve true
+	 * @param it
+	 * @return true si consigue añadir on éxito el objeto.
+	 */
+	public boolean addItem(Item it){
+		int i=0, j;
+		
+		i = Collections.binarySearch(this.item, it);
+		
+		if ( i < 0){
+			j = -i -1;
+			this.item.add(j, it);
+		}
+		return i < 0;
+		
+	}
+	/**
+	 * Suelta un item en el lugar.Esta acción puede fallar si el item que se pretende soltar ya se encuentra en el lugar.
+	 * Si pasa esto se devolverá false.
+	 * @param it
+	 * @return- true si no existe el item en el lugar.
+	 */
+	public boolean dropItem(Item it){
+		boolean drop = false;
+		
+		if ( !this.existItem(it.getId())){
+			this.item.add(it);
+			drop = true;
+		}
+		return drop;
+		
+	}
+	/**
+	 * Devuelve un string con la descripcion del lugar, asi como los items que contiene
+	 */
+	
+	public java.lang.String getDescription(){
+		String st = "   ";
+		String espacios = "   ";
+		int i = 0;
+		
+		for ( Item aux : this.item){
+			st = st + aux.getId() ;
+			if(i!=this.item.size()-1){
+				st = st + LINE_SEPARATOR + espacios;
+			}
+			i++;
+		}
+		st += LINE_SEPARATOR;
+		return this.description + LINE_SEPARATOR+ st;
+		
+	}
+	/**
+	 * Devuelve elnombre del lugar
+	 */
+	public java.lang.String getName(){
+		return this.name;
+		
+	}
+	/**
+	 * Método que devuelve true si el lugar es la nave.
+	 */
+	public boolean isSpaceship(){
+		return this.isSpaceShip;
+		
+	}
+}

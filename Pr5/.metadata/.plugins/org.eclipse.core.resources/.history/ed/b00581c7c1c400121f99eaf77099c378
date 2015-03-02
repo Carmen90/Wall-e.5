@@ -1,0 +1,144 @@
+package tp.pr5;
+
+import java.util.ArrayList;
+import java.util.Collections;
+
+import tp.pr5.items.Item;
+
+public class Place implements PlaceInfo {
+	private String description;
+	private String name;
+	private boolean isSpaceShip;
+	private ArrayList <Item> item;
+	String LINE_SEPARATOR = System.getProperty("line.separator");
+
+	public Place(){
+		this.isSpaceShip = false;
+		this.item = new ArrayList<Item>();
+		this.name = "";
+		this.description = "";
+	}
+	
+	public Place(java.lang.String name,
+		     boolean isSpaceShip,
+		     java.lang.String description){
+		this.description = description;
+		this.name = name;
+		this.isSpaceShip = isSpaceShip;
+		this.item = new ArrayList<Item>();
+	}
+	
+	
+	public java.lang.String toString(){
+		String st = "   ";
+		if( this.item.size() != 0){
+			String espacios = "   ";
+			st = "The place contains these objects:"+ LINE_SEPARATOR + espacios;
+			
+			int i = 0;
+			
+			for ( Item aux : this.item){
+				st = st + aux.getId() ;
+				if(i!=this.item.size()-1){
+					st = st + LINE_SEPARATOR + espacios;
+				}
+				i++;
+			}
+			st += LINE_SEPARATOR;
+		}
+		else{
+			st = "The place is empty. There are no objects to pick";
+		}
+		return this.name.toString() + LINE_SEPARATOR +  this.description.toString() + LINE_SEPARATOR + st;//"The place contains these objects:" + LINE_SEPARATOR + st;
+		
+	}
+	
+	////////////METODO NO EXPLICITO EN LA DOCUMENTACION, VER SI QUITAR, USADO EN existItem///////////
+	public Item getItem(java.lang.String id){
+		Item it = null;
+		
+		for ( Item itemAux : item){
+			if (itemAux.equals(id)){
+				it = itemAux;
+			}
+		}
+		return it;
+	}
+	
+	public boolean existItem(java.lang.String id){
+		Item it = null;
+		int i = -1;
+		it = this.getItem(id);
+		
+		if ( it != null){
+			i = Collections.binarySearch(this.item, it);
+		}
+		
+		return i >= 0;
+		
+	}
+	
+	public Item pickItem(java.lang.String id){
+		Item it = null;
+		int i = -1;
+		it = this.getItem(id);
+		
+		if ( it != null){
+			i = Collections.binarySearch(this.item, it);
+			if ( i >= 0)
+				this.item.remove(i);	
+		}
+			return it;	
+	}
+	
+	public boolean addItem(Item it){
+		int i=0, j;
+		
+		i = Collections.binarySearch(this.item, it);
+		
+		if ( i < 0){
+			j = -i -1;
+			this.item.add(j, it);
+		}
+		return i < 0;
+		
+	}
+	
+	public boolean dropItem(Item it){
+		boolean drop = false;
+		
+		if ( !this.existItem(it.getId())){
+			this.item.add(it);
+			drop = true;
+		}
+		return drop;
+		
+	}
+	
+	public java.lang.String getDescription(){
+		String st = "   ";
+		String espacios = "   ";
+		int i = 0;
+		
+		for ( Item aux : this.item){
+			st = st + aux.getId() ;
+			if(i!=this.item.size()-1){
+				st = st + LINE_SEPARATOR + espacios;
+			}
+			i++;
+		}
+		st += LINE_SEPARATOR;
+		return this.description + LINE_SEPARATOR+ st;
+		
+	}
+	
+	public java.lang.String getName(){
+		return this.name;
+		
+	}
+	
+	public boolean isSpaceship(){
+		return this.isSpaceShip;
+		
+	}
+}

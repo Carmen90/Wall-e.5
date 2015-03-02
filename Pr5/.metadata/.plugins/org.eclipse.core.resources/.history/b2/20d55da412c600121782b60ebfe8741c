@@ -1,0 +1,18 @@
+package tp.pr5;
+
+import tp.pr5.items.InventoryObserver;
+
+public abstract class Controller {
+	protected RobotEngine robot;
+
+	public Controller ( RobotEngine robot){
+		this.robot = robot;
+	}
+	public abstract void registerEngineObserver( RobotEngineObserver robOb);
+	
+	public abstract void registerItemContainerObserver(InventoryObserver invOb);
+	
+	public abstract void registerRobotObserver( NavigationObserver navOb);
+	
+	public abstract void startController();
+}

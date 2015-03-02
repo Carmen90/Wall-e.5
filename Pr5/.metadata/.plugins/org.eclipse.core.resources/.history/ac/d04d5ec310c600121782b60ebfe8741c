@@ -1,0 +1,9 @@
+package tp.pr5;
+/**
+ * Una clase enumerado que representa si el robot  tiene que rotar su direcci�n a la izquierda o a la derecha m�s otro valor que representa una rotaci�n desconocida.
+ * @author Nerea Ramirez y Carmen Acosta.
+ *
+ */
+public enum Rotation {
+	LEFT, RIGHT, UNKNOWN
+}

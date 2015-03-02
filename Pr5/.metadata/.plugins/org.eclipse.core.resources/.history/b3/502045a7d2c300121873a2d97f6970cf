@@ -1,0 +1,119 @@
+package tp.pr5.gui;
+
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JSplitPane;
+
+import tp.pr5.RobotEngineObserver;
+
+public class MainWindow extends JFrame implements RobotEngineObserver {
+	private NavigationPanel navigPanel;
+	private RobotPanel robPanel;
+	private GUIController control;
+	private Container panel;
+	private JSplitPane splitPane;
+	private JMenu jMenu;
+	private JMenuBar jMenuBar;
+	private JMenuItem jButtonQuit;
+	private ButtonPanel buttonPanel;
+
+	public MainWindow (){
+		super();
+	}
+	public MainWindow(GUIController gameController){
+		this.control = gameController;
+	//	this.navigPanel = new NavigationPanel();
+	//	this.robPanel = new RobotPanel ();
+		this.initPanel();
+		this.buttonPanel.fijarControlador(control);
+	}
+	
+	public void superPanel (){
+		//Create a split pane with the two scroll panes in it.
+	    this.buttonPanel = new ButtonPanel ();
+		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, this.buttonPanel, this.robPanel);
+		splitPane.setDividerLocation(275);
+	}
+	
+	/**
+	 * Inicializamos todo el panel de la MainWindow
+	 */
+	public void initPanel(){
+	    this.setSize(3*320, 340);
+	    this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    this.panel = this.getContentPane();
+	    this.robPanel = new RobotPanel();
+	    this.navigPanel= new NavigationPanel();
+	    this.jMenu = new JMenu("File");
+	    this.jMenuBar = new JMenuBar ();
+
+	   
+	    this.superPanel();
+	    
+	    this.jButtonQuit =new JMenuItem ("Quit");
+	    this.jMenu.add( this.jButtonQuit);
+	    
+	    this.jButtonQuit.setName("jButtonQuit");
+	    
+	    this.setJMenuBar(jMenuBar);
+	    this.jMenuBar.add(jMenu);
+	    
+	    this.panel.add(splitPane, BorderLayout.NORTH);
+	    this.panel.add(this.navigPanel, BorderLayout.CENTER);
+	  
+	    this.pack();
+		}
+	 
+	/**
+	 * Método que se encarga de arrancar la vista de la interfaz
+	 */
+	public void arranca(){
+       EventQueue.invokeLater(new Runnable(){
+       	public void run() {
+       		setVisible(true);
+       	}
+       });		
+	}
+	
+	@Override
+	public void raiseError(String msg) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void communicationHelp(String help) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void engineOff(boolean atShip) {
+		// TODO Auto-generated method stub
+		robPanel.engineOff(atShip);
+	}
+
+	@Override
+	public void communicationCompleted() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void robotUpdate(int fuel, int recycledMaterial) {
+		// TODO Auto-generated method stub
+		robPanel.robotUpdate(fuel, recycledMaterial);
+	}
+
+	@Override
+	public void robotSays(String message) {
+		// TODO Auto-generated method stub
+		
+	}
+}

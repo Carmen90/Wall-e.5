@@ -1,0 +1,65 @@
+package tp.pr5.gui;
+
+import java.awt.Color;
+
+import tp.pr5.Place;
+
+/**
+ * 
+ * @author Carmen Acosta Morales y Nerea Ramirez Lamela
+ * Representa un lugar en la ciudad en la interfaz Swing. Se trata de un botón, cuyo nombre es el nombre del lugar.
+ * A PlaceCell necesita almacenar una referencia al lugar que representa. Sin embargo, este lugar no debe ser modificado por el PlaceCell.
+ * Cuando el usuario hace clic en un PlaceCell la NavigationPanel mostrarán la descripción del lugar si el lugar fue visitado anteriormente.
+ */
+@SuppressWarnings("serial")
+public class PlaceCell extends javax.swing.JButton{
+	private Place place;
+	private boolean visitado;
+	private boolean actual;
+	
+	/**
+	 * Constructor without parameters 
+	 */
+	public PlaceCell (){
+		this.place = new Place();
+		this.visitado = false;
+		this.actual = false;
+	}
+	
+	/**
+	 * Constructor with params
+	 * @param initialPlace
+	 */
+	public PlaceCell(Place initialPlace) {
+		// TODO Auto-generated constructor stub
+		this.place = initialPlace;
+		this.visitado = false;
+		this.actual = false;
+	}
+	
+	public void color (){
+		if ( visitado && actual ){
+			this.setBackground(Color.GREEN);
+		}
+		else if ( visitado && !actual){
+			this.setBackground(Color.LIGHT_GRAY);
+		}
+	}
+
+	public boolean isVisitado() {
+		return visitado;
+	}
+
+	public void setVisitado(boolean visitado) {
+		this.visitado = visitado;
+	}
+
+	public boolean isActual() {
+		return actual;
+	}
+
+	public void setActual(boolean actual) {
+		this.actual = actual;
+	}
+	
+}

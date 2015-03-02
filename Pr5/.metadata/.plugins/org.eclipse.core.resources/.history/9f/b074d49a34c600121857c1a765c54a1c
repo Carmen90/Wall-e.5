@@ -1,0 +1,235 @@
+package tp.pr5;
+
+
+import java.util.Iterator;
+
+import tp.pr5.instructions.Instruction;
+import tp.pr5.instructions.exceptions.InstructionExecutionException;
+import tp.pr5.items.InventoryObserver;
+import tp.pr5.items.ItemContainer;
+
+/**
+ * Está clase representa al robot, controla sus movimientos procesando las instrucciones a través de los controladores.
+ * El robot se apaga, deja de fncionar cuando llega donde está la nave, cuando se queda sin fuel o cuando recibe la instrucción de salir. 
+ * También se encarga de actualizar el fuel y el recycled material de acuerdo con las accionesque realiza en la ciudad.
+ * Atributos: contiene un inventario(ItemContainer) donde guarda los items que  recoge de la ciudad; una dirección para saber hacia donde está mirando; un booleano para saber cuando tiene que salirse;2 enteros para el fuel y el material reycled y un navigationModule.
+ */
+public class RobotEngine extends tp.pr5.Observable<RobotEngineObserver>{
+	private NavigationModule navega;
+	private int fuel;
+	private int recycledMaterial;
+	private ItemContainer container;
+	private Direction direction;
+	private boolean quit = false;
+
+	/**
+	 * Constructora sin parametros que inicializa los atributos 
+	 */
+	public RobotEngine (){
+		this.fuel = 100;
+		this.recycledMaterial = 0;
+		this.container = new ItemContainer ();
+		this.direction = Direction.NORTH;
+		this.navega = new NavigationModule();
+	}
+	
+	/**
+	 * Constructora que crea el robot Engine en un  lugar inicial,frente a una dirección inicial y con una mapa de la ciudad.
+	 * Inicialmente el robot no tiene ningún artículo o material reciclado, pero tiene una cantidad inicial de fuel de 100
+	 */
+	public RobotEngine(City map,
+	           Place initialPlace,
+	           Direction direction){
+		this.navega = new NavigationModule ( map, initialPlace);
+		this.recycledMaterial = 0;
+		this.fuel = 100;
+		this.container = new ItemContainer();
+		this.direction = direction;
+	}
+
+	/**
+	 * En este método se ejecuta una instrucción. Antes de ejecutar la instrucción debe estar configurada con el contexto.
+	 * Se controla el final de la simulación.Si la ejecución lanza una excepción se imprimirá el mensaje correspondiente.
+	 * @param c -Instrucción que se quiere ejecutar.
+	 */
+	public void communicateRobot(Instruction c){
+		 c.configureContext(this,this.navega,this.container);
+		 try{
+			 c.execute();
+		 }catch(InstructionExecutionException e){
+				Iterator <RobotEngineObserver> robOb = this.iterator();
+				while (robOb.hasNext()){
+					robOb.next().raiseError(e.getMessage());
+				}
+			 
+		 }
+	}
+	
+	/**
+	 * Aquí se controla si el juego se ha acabado.Esto ocurre cuando el fuel es menor que 0 o cuando se ha llegado donde está la nave.
+	 * En caso de que el juego haya concluido se informa a los RobotObservers
+	 * @return- devuelve un booleano que indica si el juego ha finalizado(true) , false si no.
+	 */
+	public boolean isOver(){
+		if (this.fuel <= 0 || this.navega.getCurrentPlace().isSpaceship()){
+			Iterator <RobotEngineObserver> robOb = this.iterator();
+			while (robOb.hasNext()){
+				robOb.next().engineOff(this.navega.getCurrentPlace().isSpaceship());
+			}
+		}
+	
+		return this.fuel <= 0 || this.navega.getCurrentPlace().isSpaceship();
+		
+	}
+
+	/**
+	 * Este método se encarga de sumar una cantidad dada de recycled material al robot. 
+	 * Se encarga de informar a los RobotObservers de que el robot ha sido modificado
+	 * @param weight cantidad de material a sumar
+	 */
+	public void addRecycledMaterial(int weight){
+		this.recycledMaterial += weight;
+		Iterator <RobotEngineObserver> robOb = this.iterator();
+		while (robOb.hasNext()){
+			robOb.next().robotUpdate(fuel, this.recycledMaterial);
+		}
+	}
+	
+	/**
+	 * Este método se encarga de sumar una cantidad dada de fuel al robot. Esta cantidad de fuel puede ser negativa 
+	 * Se encarga de informar a los RobotObservers de que la energia del robot ha sido modificada
+	 * @param fuel cantidad de fuel a sumar
+	 */
+	public void addFuel(int fuel){
+		this.fuel += fuel;
+		Iterator <RobotEngineObserver> robOb = this.iterator();
+		while (robOb.hasNext()){
+			robOb.next().robotUpdate(this.fuel, this.recycledMaterial);
+		}
+		if ( this.fuel <= 0){
+			Iterator <RobotEngineObserver> robOb1 = this.iterator();
+			while (robOb1.hasNext()){
+				robOb1.next().engineOff(false);
+			}
+		}
+	}
+	
+	/**
+	 * Devuelve la cantidad de fuel que posee el robot en el momento actual 
+	 * @return cantidad de fuel
+	 */
+	public int getFuel(){
+		return this.fuel;
+	}
+	
+	/**
+	 * Devuelve la cantidad de racycled material que lleva el robot 
+	 * @return cantidad de recycled material
+	 */
+	public int getRecycledMaterial(){
+		return this.recycledMaterial;
+	}
+	
+	/**
+	 * Informa a los NavigationObservers y a los RobotObservers de que se inicia el programa
+	 */
+	public void requestStart(){
+		
+		Iterator <NavigationObserver> navOb = this.navega.iterator();
+		while ( navOb.hasNext()){
+			navOb.next().initNavigationModule(this.navega.getCurrentPlace(), this.direction);
+		}
+		Iterator <RobotEngineObserver> robOb = this.iterator();
+		while (robOb.hasNext()){
+			robOb.next().robotUpdate(fuel, recycledMaterial);
+		}
+	}
+	
+	/**
+	 * Se pide el final de la simulación y se informa de ello al RobotEngineObserver  
+	 */
+	public void requestQuit(){
+		Iterator <RobotEngineObserver> robOb = this.iterator();
+		while ( robOb.hasNext()){
+			robOb.next().communicationCompleted();
+		}
+		this.quit = true;
+	}
+	
+	/**
+	 * Se pide al robotEngine la información sobre las instrucciones válidas y se avisa a los RobotEngineObservers . 
+	 */
+	public void requestHelp(){
+		Iterator <RobotEngineObserver> robOb = this.iterator();
+		while (robOb.hasNext()){
+			robOb.next().communicationHelp(Interpreter.interpreterHelp());
+		}
+	}
+	
+	/**
+	 * Se pide al robotEngine informar sobre un error que se ha planteado para lo cual se avisa a los RobotEngineObservers 
+	 * del error.
+	 */
+	public void requestError(java.lang.String msg){
+		Iterator <RobotEngineObserver> robOb = this.iterator();
+		while (robOb.hasNext()){
+			robOb.next().raiseError(msg);
+		}
+	}
+	
+	/**
+	 * Se encarga de transmitir a las vistas de tipo RObotEngineObserver un mensaje que el robot quiere decir
+	 * @param message  - el mensaje para decir
+	 */
+	public void saySomething(java.lang.String message){
+		Iterator <RobotEngineObserver> robOb = this.iterator();
+		while (robOb.hasNext()){
+			robOb.next().robotSays(message);
+		}
+	}
+	
+	/**
+	 * Aqui se añade al navigationModule un nuevo NavigationObserver
+	 * @param robotObserver - El observador que desea registrarse
+	 */
+	public void addNavigationObserver(NavigationObserver robotObserver){
+		this.navega.add(robotObserver);
+	}
+	
+	/**
+	 * Regitra un EngineObserver al modelo
+	 * @param observer - El observador que desea registrarse
+	 */
+	public void addEngineObserver(RobotEngineObserver observer){
+		this.add(observer);
+	}
+	
+	/**
+	 * Registra un ItemContainerObserver en el ItemContainer del modelo
+	 * @param observer - El observador que desea registrarse
+	 */
+	public void addItemContainerObserver(InventoryObserver observer){
+		this.container.add(observer);
+	}
+
+	/**
+	 * Devuelve true si la accion de quit ha sido solicitada
+	 * @return
+	 */
+	public boolean isQuit() {
+		return quit;
+	}
+	
+	/**
+	 * Se encarga de notificar a las vistas de tipo NavigationObserver de que el lugar ha cambiado
+	 */
+	@Override
+	public void notifyObservers (Object o){
+		Iterator <NavigationObserver> navOb = this.navega.iterator();
+		while ( navOb.hasNext()){
+			navOb.next().placeHasChanged((PlaceInfo) o);
+		}
+	}
+
+}
+
